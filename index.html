@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>バイトシフト管理 (月別振込確定額対応版)</title>
+  <title>バイトシフト管理</title>
   
   <!-- PWA設定 -->
   <link rel="manifest" href='data:application/manifest+json,{"name":"バイトシフト管理","short_name":"シフト管理","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#1e1b4b","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
@@ -992,35 +992,52 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="auth-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title">🔑 パスワードで端末連携</div>
-        <button class="modal-close-btn" id="close-auth-modal-btn">&times;</button>
-      </div>
+<!-- 995行目付近から置き換え -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">📱 端末連携設定 (Firebase)</div>
+      <button class="modal-close-btn" id="close-auth-modal-btn">&times;</button>
+    </div>
+
+    <div style="padding: 10px 0;">
+      <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">
+        PCとスマホでデータをリアルタイム共有するには、ご自身のFirebaseプロジェクト情報を入力してください。
+      </p>
       
-      <div id="auth-unlogged-view">
-        <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">
-          PCとスマホで同じパスワードを入力すると、シフトデータをリアルタイムで共有・同期できます。
-        </p>
-        <div class="auth-form">
-          <div class="form-group">
-            <label>パスワード (合言葉)</label>
-            <input type="password" id="auth-password" placeholder="4文字以上のパスワード">
-          </div>
-          <div style="display: flex; gap: 8px; margin-top: 6px;">
-            <button id="pass-connect-btn" style="flex:1;">接続 / 同期開始</button>
-          </div>
-        </div>
+      <p id="firebase-sync-status" style="font-weight: bold; font-size: 12px; color: #888; margin-bottom: 10px;">同期状態: 確認中...</p>
+
+      <div style="margin-bottom: 8px;">
+        <label style="display:block; font-size: 12px; margin-bottom: 2px;">API Key <span style="color:red;">*</span></label>
+        <input type="text" id="fb-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
       </div>
 
-      <div id="auth-logged-view" style="display: none;">
-        <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 6px;">現在の同期状態:</p>
-        <p id="logged-pass-info" style="font-weight: bold; font-size: 13px; margin-bottom: 12px; word-break: break-all; color: #10b981;"></p>
-        <button id="logout-btn" class="btn-danger" style="width: 100%;">連携解除 (切断)</button>
+      <div style="margin-bottom: 8px;">
+        <label style="display:block; font-size: 12px; margin-bottom: 2px;">Project ID <span style="color:red;">*</span></label>
+        <input type="text" id="fb-project-id" placeholder="your-app-id" style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
+      </div>
+
+      <div style="margin-bottom: 8px;">
+        <label style="display:block; font-size: 12px; margin-bottom: 2px;">Auth Domain</label>
+        <input type="text" id="fb-auth-domain" placeholder="your-app.firebaseapp.com" style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label style="display:block; font-size: 12px; margin-bottom: 2px;">Database URL</label>
+        <input type="text" id="fb-db-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" onclick="saveFirebaseConfigFromUI()" style="flex:1; background-color: #007bff; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+          保存して接続
+        </button>
+        <button type="button" onclick="clearFirebaseConfigUI()" style="background-color: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+          解除
+        </button>
       </div>
     </div>
   </div>
+</div>
 
   <div class="modal-overlay" id="workplace-modal">
     <div class="modal-card">
@@ -1132,28 +1149,29 @@
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
+// ローカルストレージから設定を取得
+function getSavedFirebaseConfig() {
+  const saved = localStorage.getItem('user_firebase_config');
+  return saved ? JSON.parse(saved) : null;
+}
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        const swCode = `self.addEventListener('fetch', (e) => {});`;
-        const blob = new Blob([swCode], { type: 'text/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
-      });
-    }
+let app = null;
+let auth = null;
+let db = null;
+let currentUser = null;
+let unsubscribeFirestore = null;
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    let currentUser = null;
-    let unsubscribeFirestore = null;
+// 設定が存在する場合のみFirebaseを安全に起動
+const userConfig = getSavedFirebaseConfig();
+if (userConfig && userConfig.apiKey && userConfig.apiKey !== "YOUR_API_KEY") {
+  try {
+    app = initializeApp(userConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (e) {
+    console.error("Firebase初期化失敗:", e);
+  }
+}
 
     const START_HOUR = 8;
     const END_HOUR = 23;
@@ -1331,31 +1349,23 @@
       }, { merge: true });
     }
 
-    passConnectBtn.addEventListener('click', async () => {
-      const password = authPasswordInput.value.trim();
-      if (!password || password.length < 4) {
-        alert('パスワードは4文字以上で入力してください。');
-        return;
-      }
+   // モーダルの「保存して接続」ボタンが押された時の処理
+function saveFirebaseConfigFromUI() {
+  const apiKey = document.getElementById('fb-api-key').value.trim();
+  const projectId = document.getElementById('fb-project-id').value.trim();
+  const authDomain = document.getElementById('fb-auth-domain').value.trim();
+  const databaseURL = document.getElementById('fb-db-url').value.trim();
 
-      const { internalEmail, internalPass } = convertPasswordToEmailAndPassword(password);
+  if (!apiKey || !projectId) {
+    alert("API Key と Project ID は必須項目です。");
+    return;
+  }
 
-      try {
-        await signInWithEmailAndPassword(auth, internalEmail, internalPass);
-        authModal.style.display = 'none';
-      } catch (error) {
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
-          try {
-            await createUserWithEmailAndPassword(auth, internalEmail, internalPass);
-            alert('新しいパスワードで連携グループを作成しました！PCやスマホで同じパスワードを入力してください。');
-            authModal.style.display = 'none';
-          } catch (createError) {
-            alert('接続エラー: ' + createError.message);
-          }
-        } else {
-          alert('接続エラー: ' + error.message);
-        }
-      }
+  const config = { apiKey, projectId, authDomain, databaseURL };
+  localStorage.setItem('user_firebase_config', JSON.stringify(config));
+  alert("設定を保存しました！再読み込みして接続します。");
+  location.reload();
+}
     });
 
     logoutBtn.addEventListener('click', async () => {
