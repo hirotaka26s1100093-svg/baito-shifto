@@ -1,8 +1,9 @@
-<!DOCTYPE html><html lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>バイトシフト管理</title>
+  <title>バイトシフト管理 (月別振込確定額対応版)</title>
   
   <!-- PWA設定 -->
   <link rel="manifest" href='data:application/manifest+json,{"name":"バイトシフト管理","short_name":"シフト管理","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#1e1b4b","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
@@ -152,12 +153,6 @@
     .btn-batch { background-color: #f59e0b; color: white; }
     .btn-batch:hover { background-color: #d97706; }
 
-    .btn-auth { background-color: #8b5cf6; color: white; }
-    .btn-auth:hover { background-color: #7c3aed; }
-
-    .btn-notify { background-color: #ec4899; color: white; }
-    .btn-notify:hover { background-color: #db2777; }
-
     .btn-annual { background-color: #14b8a6; color: white; }
     .btn-annual:hover { background-color: #0d9488; }
 
@@ -194,7 +189,7 @@
       font-size: 12px;
     }
 
-    select, input[type="number"], input[type="time"], input[type="text"], input[type="date"], input[type="password"] {
+    select, input[type="number"], input[type="time"], input[type="text"], input[type="date"] {
       padding: 4px 6px;
       border: 1px solid var(--input-border);
       background-color: var(--input-bg);
@@ -743,13 +738,13 @@
       color: var(--text-sub);
     }
 
-    .edit-shift-form, .auth-form, .batch-form, .notify-form, .annual-form {
+    .edit-shift-form, .batch-form, .annual-form {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .edit-shift-form .form-group, .auth-form .form-group, .batch-form .form-group, .notify-form .form-group, .annual-form .form-group {
+    .edit-shift-form .form-group, .batch-form .form-group, .annual-form .form-group {
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -807,7 +802,6 @@
         <button id="open-workplace-modal-btn" class="btn-workplace">🏢 バイト先設定</button>
         <button id="open-batch-modal-btn" class="btn-batch">⚡ 一括登録</button>
         <button id="open-annual-modal-btn" class="btn-annual">📊 年間シミュレーター</button>
-        <button id="open-notify-modal-btn" class="btn-notify">🔔 当日通知設定</button>
         <div class="view-toggle-group">
           <button id="view-calendar-btn" class="view-toggle-btn active">📅 カレンダー</button>
           <button id="view-list-btn" class="view-toggle-btn">📋 リスト表示</button>
@@ -824,7 +818,6 @@
         </div>
         <button id="next-month-btn">翌月 ＞</button>
         <button id="today-btn" class="btn-secondary">今月</button>
-        <button id="open-auth-modal-btn" class="btn-auth">☁️ 端末連携</button>
         <button id="theme-toggle-btn" class="theme-toggle-btn">🌙 ダーク</button>
       </div>
     </div>
@@ -962,83 +955,6 @@
     </div>
   </div>
 
-  <!-- モーダル: 当日シフト通知設定 -->
-  <div class="modal-overlay" id="notify-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title">🔔 当日シフトのリマインド通知設定</div>
-        <button class="modal-close-btn" id="close-notify-modal-btn">&times;</button>
-      </div>
-      <div class="notify-form">
-        <p style="font-size:12px; color:var(--text-sub);">
-          当日シフトが入っている日、指定した時刻にスマホやPCへデスクトップ通知（またはアプリ通知）を送ります。
-        </p>
-        <div class="form-group">
-          <label>通知を有効にする</label>
-          <select id="notify-enabled-select">
-            <option value="false">無効</option>
-            <option value="true">有効</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>通知実行時刻</label>
-          <input type="time" id="notify-time-input" value="07:00">
-        </div>
-        <div style="margin-top:8px; display:flex; gap:8px;">
-          <button id="request-notify-permission-btn" class="btn-notify" style="flex:1;">通知の権限を許可 / 設定保存</button>
-        </div>
-        <p id="notify-status-text" style="font-size:11px; font-weight:bold; color:#10b981; margin-top:4px;"></p>
-      </div>
-    </div>
-  </div>
-
-<!-- 995行目付近から置き換え -->
-<div class="modal-overlay" id="auth-modal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <div class="modal-title">📱 端末連携設定 (Firebase)</div>
-      <button class="modal-close-btn" id="close-auth-modal-btn">&times;</button>
-    </div>
-
-    <div style="padding: 10px 0;">
-      <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">
-        PCとスマホでデータをリアルタイム共有するには、ご自身のFirebaseプロジェクト情報を入力してください。
-      </p>
-      
-      <p id="firebase-sync-status" style="font-weight: bold; font-size: 12px; color: #888; margin-bottom: 10px;">同期状態: 確認中...</p>
-
-      <div style="margin-bottom: 8px;">
-        <label style="display:block; font-size: 12px; margin-bottom: 2px;">API Key <span style="color:red;">*</span></label>
-        <input type="text" id="fb-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
-      </div>
-
-      <div style="margin-bottom: 8px;">
-        <label style="display:block; font-size: 12px; margin-bottom: 2px;">Project ID <span style="color:red;">*</span></label>
-        <input type="text" id="fb-project-id" placeholder="your-app-id" style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
-      </div>
-
-      <div style="margin-bottom: 8px;">
-        <label style="display:block; font-size: 12px; margin-bottom: 2px;">Auth Domain</label>
-        <input type="text" id="fb-auth-domain" placeholder="your-app.firebaseapp.com" style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
-      </div>
-
-      <div style="margin-bottom: 12px;">
-        <label style="display:block; font-size: 12px; margin-bottom: 2px;">Database URL</label>
-        <input type="text" id="fb-db-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="width: 100%; padding: 6px; box-sizing: border-box; font-size: 12px;" />
-      </div>
-
-      <div style="display: flex; gap: 8px;">
-        <button type="button" onclick="saveFirebaseConfigFromUI()" style="flex:1; background-color: #007bff; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-          保存して接続
-        </button>
-        <button type="button" onclick="clearFirebaseConfigUI()" style="background-color: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-          解除
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
   <div class="modal-overlay" id="workplace-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -1133,45 +1049,14 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      createUserWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      setDoc, 
-      onSnapshot 
-    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-
-// ローカルストレージから設定を取得
-function getSavedFirebaseConfig() {
-  const saved = localStorage.getItem('user_firebase_config');
-  return saved ? JSON.parse(saved) : null;
-}
-
-let app = null;
-let auth = null;
-let db = null;
-let currentUser = null;
-let unsubscribeFirestore = null;
-
-// 設定が存在する場合のみFirebaseを安全に起動
-const userConfig = getSavedFirebaseConfig();
-if (userConfig && userConfig.apiKey && userConfig.apiKey !== "YOUR_API_KEY") {
-  try {
-    app = initializeApp(userConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } catch (e) {
-    console.error("Firebase初期化失敗:", e);
-  }
-}
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swCode = `self.addEventListener('fetch', (e) => {});`;
+        const blob = new Blob([swCode], { type: 'text/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+      });
+    }
 
     const START_HOUR = 8;
     const END_HOUR = 23;
@@ -1181,17 +1066,11 @@ if (userConfig && userConfig.apiKey && userConfig.apiKey !== "YOUR_API_KEY") {
     let shifts = JSON.parse(localStorage.getItem('shift_app_shifts')) || [];
     
     let workplaces = JSON.parse(localStorage.getItem('shift_app_workplaces')) || [
-      { id: 'wp_1', name: 'メインバイト', hourly: 1100, nightHourly: 1375, transport: 500, color: '#3b82f6', breakThreshold: 6, breakMinutes: 45, closingDay: 0, overtimeRate: 1.25, holidayTarget: 'sun', holidayRate: 1.35 },
+      { id: 'wp_1', name: 'ひばりが丘', hourly: 1100, nightHourly: 1375, transport: 500, color: '#3b82f6', breakThreshold: 6, breakMinutes: 45, closingDay: 0, overtimeRate: 1.25, holidayTarget: 'sun', holidayRate: 1.35 },
       { id: 'wp_2', name: 'サブバイト', hourly: 1200, nightHourly: 1500, transport: 0, color: '#10b981', breakThreshold: 6, breakMinutes: 60, closingDay: 0, overtimeRate: 1.25, holidayTarget: 'none', holidayRate: 1.00 }
     ];
 
     let monthlyActualPaid = JSON.parse(localStorage.getItem('shift_app_monthly_actual_paid')) || {};
-
-    let notifyConfig = JSON.parse(localStorage.getItem('shift_app_notify_config')) || {
-      enabled: false,
-      time: '07:00',
-      lastNotifiedDate: ''
-    };
 
     let currentViewMode = 'calendar';
 
@@ -1236,16 +1115,6 @@ if (userConfig && userConfig.apiKey && userConfig.apiKey !== "YOUR_API_KEY") {
     const copyListBtn = document.getElementById('copy-list-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
-    const authModal = document.getElementById('auth-modal');
-    const openAuthModalBtn = document.getElementById('open-auth-modal-btn');
-    const closeAuthModalBtn = document.getElementById('close-auth-modal-btn');
-    const passConnectBtn = document.getElementById('pass-connect-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const authPasswordInput = document.getElementById('auth-password');
-    const authUnloggedView = document.getElementById('auth-unlogged-view');
-    const authLoggedView = document.getElementById('auth-logged-view');
-    const loggedPassInfo = document.getElementById('logged-pass-info');
-
     const workplaceModal = document.getElementById('workplace-modal');
     const openWorkplaceModalBtn = document.getElementById('open-workplace-modal-btn');
     const closeWorkplaceModalBtn = document.getElementById('close-workplace-modal-btn');
@@ -1260,14 +1129,6 @@ if (userConfig && userConfig.apiKey && userConfig.apiKey !== "YOUR_API_KEY") {
     const batchEndInput = document.getElementById('batch-end');
     const batchMemoInput = document.getElementById('batch-memo');
     const executeBatchBtn = document.getElementById('execute-batch-btn');
-
-    const notifyModal = document.getElementById('notify-modal');
-    const openNotifyModalBtn = document.getElementById('open-notify-modal-btn');
-    const closeNotifyModalBtn = document.getElementById('close-notify-modal-btn');
-    const notifyEnabledSelect = document.getElementById('notify-enabled-select');
-    const notifyTimeInput = document.getElementById('notify-time-input');
-    const requestNotifyPermissionBtn = document.getElementById('request-notify-permission-btn');
-    const notifyStatusText = document.getElementById('notify-status-text');
 
     const annualModal = document.getElementById('annual-modal');
     const openAnnualModalBtn = document.getElementById('open-annual-modal-btn');
@@ -1292,86 +1153,6 @@ if (userConfig && userConfig.apiKey && userConfig.apiKey !== "YOUR_API_KEY") {
     const saveShiftEditBtn = document.getElementById('save-shift-edit-btn');
     const copyShiftEditBtn = document.getElementById('copy-shift-edit-btn');
     const deleteShiftEditBtn = document.getElementById('delete-shift-edit-btn');
-
-    function convertPasswordToEmailAndPassword(password) {
-      const rawPass = password.trim();
-      const internalPass = rawPass.length < 6 ? (rawPass + "000000").slice(0, 6) : rawPass;
-      const internalEmail = `user_${rawPass}@shift.app`;
-      return { internalEmail, internalPass };
-    }
-
-    if (auth) {
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      openAuthModalBtn.textContent = '🟢 同期中';
-      loggedPassInfo.textContent = '🟢 端末間でリアルタイム同期中';
-      authUnloggedView.style.display = 'none';
-      authLoggedView.style.display = 'block';
-
-      const userDocRef = doc(db, 'users', user.uid);
-      unsubscribeFirestore = onSnapshot(userDocRef, (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          if (data.shifts) shifts = data.shifts;
-          if (data.workplaces) workplaces = data.workplaces;
-          if (data.targetSalary !== undefined) targetSalaryInput.value = data.targetSalary;
-          if (data.monthlyActualPaid) monthlyActualPaid = data.monthlyActualPaid;
-
-          renderWorkplaceOptions();
-          updateCalendar(false);
-        } else {
-          saveAllDataToCloud();
-        }
-      });
-    } else {
-      openAuthModalBtn.textContent = '☁️ 端末連携';
-      authUnloggedView.style.display = 'block';
-      authLoggedView.style.display = 'none';
-      if (unsubscribeFirestore) unsubscribeFirestore();
-    }
-  });
-}
-
-    function saveAllDataToCloud() {
-      if (!currentUser) return;
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      const targetVal = parseInt(targetSalaryInput.value, 10) || 0;
-      setDoc(userDocRef, {
-        shifts: shifts,
-        workplaces: workplaces,
-        targetSalary: targetVal,
-        monthlyActualPaid: monthlyActualPaid,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
-    }
-
-   // モーダルの「保存して接続」ボタンが押された時の処理
-function saveFirebaseConfigFromUI() {
-  const apiKey = document.getElementById('fb-api-key').value.trim();
-  const projectId = document.getElementById('fb-project-id').value.trim();
-  const authDomain = document.getElementById('fb-auth-domain').value.trim();
-  const databaseURL = document.getElementById('fb-db-url').value.trim();
-
-  if (!apiKey || !projectId) {
-    alert("API Key と Project ID は必須項目です。");
-    return;
-  }
-
-  const config = { apiKey, projectId, authDomain, databaseURL };
-  localStorage.setItem('user_firebase_config', JSON.stringify(config));
-  alert("設定を保存しました！再読み込みして接続します。");
-  location.reload();
-}
-    });
-
-    logoutBtn.addEventListener('click', async () => {
-      await signOut(auth);
-      authModal.style.display = 'none';
-    });
-
-    openAuthModalBtn.addEventListener('click', () => { authModal.style.display = 'flex'; });
-    closeAuthModalBtn.addEventListener('click', () => { authModal.style.display = 'none'; });
 
     function init() {
       initTheme();
@@ -1427,7 +1208,6 @@ function saveFirebaseConfigFromUI() {
         const val = parseInt(targetSalaryInput.value, 10) || 0;
         localStorage.setItem('shift_app_target_salary', val);
         calculateSalary();
-        saveAllDataToCloud();
       });
 
       monthlyActualPaidInput.addEventListener('input', () => {
@@ -1443,7 +1223,6 @@ function saveFirebaseConfigFromUI() {
         }
 
         localStorage.setItem('shift_app_monthly_actual_paid', JSON.stringify(monthlyActualPaid));
-        saveAllDataToCloud();
         calculateSalary();
       });
 
@@ -1475,15 +1254,6 @@ function saveFirebaseConfigFromUI() {
       closeBatchModalBtn.addEventListener('click', () => { batchModal.style.display = 'none'; });
       executeBatchBtn.addEventListener('click', executeBatchAdd);
 
-      openNotifyModalBtn.addEventListener('click', () => {
-        notifyEnabledSelect.value = notifyConfig.enabled ? "true" : "false";
-        notifyTimeInput.value = notifyConfig.time || "07:00";
-        updateNotifyStatusText();
-        notifyModal.style.display = 'flex';
-      });
-      closeNotifyModalBtn.addEventListener('click', () => { notifyModal.style.display = 'none'; });
-      requestNotifyPermissionBtn.addEventListener('click', setupNotification);
-
       openAnnualModalBtn.addEventListener('click', () => {
         calculateAnnualSalary();
         annualModal.style.display = 'flex';
@@ -1500,9 +1270,6 @@ function saveFirebaseConfigFromUI() {
         if (id) deleteShift(id);
         editShiftModal.style.display = 'none';
       });
-
-      setInterval(checkTodayShiftNotification, 60000);
-      checkTodayShiftNotification();
     }
 
     function initTheme() {
@@ -1539,89 +1306,6 @@ function saveFirebaseConfigFromUI() {
       }
     }
 
-    function updateNotifyStatusText() {
-      if (!('Notification' in window)) {
-        notifyStatusText.textContent = "⚠️ このブラウザは通知に対応していません";
-        notifyStatusText.style.color = "#ef4444";
-      } else if (Notification.permission === 'granted') {
-        notifyStatusText.textContent = notifyConfig.enabled ? "🟢 通知許可済み・有効" : "⚪ 通知許可済み（無効設定中）";
-        notifyStatusText.style.color = notifyConfig.enabled ? "#10b981" : "#94a3b8";
-      } else if (Notification.permission === 'denied') {
-        notifyStatusText.textContent = "🔴 ブラウザの通知がブロックされています";
-        notifyStatusText.style.color = "#ef4444";
-      } else {
-        notifyStatusText.textContent = "🟡 通知権限が未設定です";
-        notifyStatusText.style.color = "#f59e0b";
-      }
-    }
-
-    async function setupNotification() {
-      if (!('Notification' in window)) {
-        alert("お使いの端末・ブラウザは通知機能に対応していません。");
-        return;
-      }
-
-      let permission = Notification.permission;
-      if (permission !== 'granted') {
-        permission = await Notification.requestPermission();
-      }
-
-      if (permission === 'granted') {
-        notifyConfig.enabled = (notifyEnabledSelect.value === 'true');
-        notifyConfig.time = notifyTimeInput.value || '07:00';
-        localStorage.setItem('shift_app_notify_config', JSON.stringify(notifyConfig));
-        updateNotifyStatusText();
-        alert("通知設定を保存しました！");
-        notifyModal.style.display = 'none';
-        checkTodayShiftNotification();
-      } else {
-        alert("通知の送信が許可されませんでした。ブラウザの通知設定をご確認ください。");
-        updateNotifyStatusText();
-      }
-    }
-
-    function checkTodayShiftNotification() {
-      if (!notifyConfig.enabled || Notification.permission !== 'granted') return;
-
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
-      const currentDateDay = String(now.getDate()).padStart(2, '0');
-      const todayStr = `${currentYear}-${currentMonth}-${currentDateDay}`;
-
-      if (notifyConfig.lastNotifiedDate === todayStr) return;
-
-      const currentHours = String(now.getHours()).padStart(2, '0');
-      const currentMins = String(now.getMinutes()).padStart(2, '0');
-      const currentTimeStr = `${currentHours}:${currentMins}`;
-
-      if (currentTimeStr >= notifyConfig.time) {
-        const todayShifts = shifts.filter(s => s.date === todayStr).sort((a,b) => a.start.localeCompare(b.start));
-
-        if (todayShifts.length > 0) {
-          const shiftDetails = todayShifts.map(s => {
-            const wp = workplaces.find(w => w.id === s.workplaceId);
-            return `${wp ? wp.name : 'バイト'} (${s.start}〜${s.end})`;
-          }).join(', ');
-
-          const title = "📅 本日のシフト通知";
-          const options = {
-            body: `今日はシフトが入っています！\n【予定】${shiftDetails}`,
-            icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>'
-          };
-
-          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
-          } else {
-            new Notification(title, options);
-          }
-        }
-
-        notifyConfig.lastNotifiedDate = todayStr;
-        localStorage.setItem('shift_app_notify_config', JSON.stringify(notifyConfig));
-      }
-    }
-
     /* 年間シミュレーター計算 (月別振込確定額優先) */
     function calculateAnnualSalary() {
       const selectedYear = parseInt(annualYearSelect.value, 10);
@@ -1635,7 +1319,6 @@ function saveFirebaseConfigFromUI() {
         if (monthlyActualPaid[mKey] !== undefined) {
           annualTotal += monthlyActualPaid[mKey];
         } else {
-          // 振込確定額が未入力の月はシフト試算値で集計
           const monthShifts = shifts.filter(s => {
             const [y, monthStr] = s.date.split('-');
             return parseInt(y, 10) === selectedYear && parseInt(monthStr, 10) === m;
@@ -1787,7 +1470,6 @@ function saveFirebaseConfigFromUI() {
 
     function saveWorkplaces() {
       localStorage.setItem('shift_app_workplaces', JSON.stringify(workplaces));
-      saveAllDataToCloud();
     }
 
     function executeBatchAdd() {
@@ -1875,7 +1557,6 @@ function saveFirebaseConfigFromUI() {
       yearSelect.value = year;
       monthSelect.value = month + 1;
 
-      // 月別の振込確定額入力欄の初期値を設定
       const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
       monthlyActualPaidInput.value = monthlyActualPaid[monthKey] !== undefined ? monthlyActualPaid[monthKey] : '';
 
@@ -2024,7 +1705,6 @@ function saveFirebaseConfigFromUI() {
       }
     }
 
-    /* リスト表示描画 */
     function renderList(year, month) {
       listTableBody.innerHTML = '';
       listTitle.textContent = `${year}年${month + 1}月 シフト一覧`;
@@ -2312,7 +1992,6 @@ function saveFirebaseConfigFromUI() {
 
     function saveShifts() {
       localStorage.setItem('shift_app_shifts', JSON.stringify(shifts));
-      saveAllDataToCloud();
     }
 
     function getWorkingPeriod(year, month, closingDay) {
@@ -2498,7 +2177,6 @@ function saveFirebaseConfigFromUI() {
       totalHoursEl.textContent = totalHours.toFixed(1);
       totalSalaryEl.textContent = `￥${grandTotalSalary.toLocaleString()}`;
 
-      // 振込確定額が入力されている場合は、達成率計算のベースとして振込額を優先使用
       const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
       const actualPaidVal = monthlyActualPaid[monthKey];
       const comparisonBaseSalary = (actualPaidVal !== undefined) ? actualPaidVal : grandTotalSalary;
