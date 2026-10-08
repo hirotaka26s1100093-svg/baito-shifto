@@ -1,15 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>バイトシフト管理</title>
-  
-  <!-- PWA設定 -->
-  <link rel="manifest" href='data:application/manifest+json,{"name":"バイトシフト管理","short_name":"シフト管理","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#1e1b4b","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
-  <meta name="theme-color" content="#1e1b4b">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
-
   <style>
     :root {
       --bg-color: #f4f7f6;
@@ -21,20 +15,25 @@
       --input-bg: #ffffff;
       --input-text: #111827;
       --input-border: #ccc;
-      
       --cell-other-month-bg: #cbd5e1;
       --cell-has-shift-bg: #ffffff;
       --cell-no-shift-bg: #e2e8f0;
       --cell-today-bg: #f0f9ff;
       --header-today-bg: #e0f2fe;
-
       --sticky-header-bg: #f9fafb;
       --time-col-bg: #f8fafc;
-
       --text-sub: #475569;
       --text-muted: #94a3b8;
-
       --summary-bg: linear-gradient(135deg, #1e1b4b, #312e81, #2563eb);
+      --shadow: rgba(0, 0, 0, 0.08);
+      --modal-bg: rgba(15, 23, 42, 0.5);
+      --danger: #ef4444;
+      --danger-dark: #dc2626;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --info: #06b6d4;
     }
 
     [data-theme="dark"] {
@@ -47,88 +46,38 @@
       --input-bg: #0f172a;
       --input-text: #f3f4f6;
       --input-border: #475569;
-
       --cell-other-month-bg: #090d16;
       --cell-has-shift-bg: #0f172a;
       --cell-no-shift-bg: #1e293b;
       --cell-today-bg: #1e3a8a;
       --header-today-bg: #1d4ed8;
-
       --sticky-header-bg: #182232;
       --time-col-bg: #111827;
-
       --text-sub: #94a3b8;
       --text-muted: #64748b;
-
       --summary-bg: linear-gradient(135deg, #020617, #1e1b4b, #1d4ed8);
+      --shadow: rgba(0, 0, 0, 0.25);
+      --modal-bg: rgba(2, 6, 23, 0.7);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
       padding: 10px;
-      max-width: 1400px;
+      max-width: 1450px;
       margin: 0 auto;
-      transition: background-color 0.2s, color 0.2s;
-    }
-
-    header {
-      background-color: var(--header-bg);
-      padding: 8px 12px;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      margin-bottom: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .nav-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      width: 100%;
-      justify-content: space-between;
-    }
-
-    .nav-left-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .today-badge {
-      background-color: #e0f2fe;
-      color: #0369a1;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      border: 1px solid #bae6fd;
-    }
-
-    [data-theme="dark"] .today-badge {
-      background-color: #1e3a8a;
-      color: #93c5fd;
-      border-color: #2563eb;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     button {
-      background-color: #3b82f6;
+      background-color: var(--primary);
       color: white;
       border: none;
       padding: 5px 10px;
@@ -136,33 +85,80 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 12px;
-      transition: background-color 0.2s, transform 0.1s;
+      transition: background-color 0.2s ease, transform 0.1s ease;
     }
 
-    button:hover { background-color: #2563eb; }
-    button:active { transform: scale(0.98); }
+    button:hover {
+      background-color: var(--primary-dark);
+    }
 
-    .btn-secondary { background-color: #e5e7eb; color: #374151; }
-    [data-theme="dark"] .btn-secondary { background-color: #334155; color: #f3f4f6; }
-    .btn-secondary:hover { background-color: #d1d5db; }
-    [data-theme="dark"] .btn-secondary:hover { background-color: #475569; }
+    button:active {
+      transform: scale(0.98);
+    }
 
-    .btn-workplace { background-color: #10b981; color: white; }
-    .btn-workplace:hover { background-color: #059669; }
+    .btn-secondary {
+      background-color: #e5e7eb;
+      color: #374151;
+    }
 
-    .btn-batch { background-color: #f59e0b; color: white; }
-    .btn-batch:hover { background-color: #d97706; }
+    [data-theme="dark"] .btn-secondary {
+      background-color: #334155;
+      color: #f3f4f6;
+    }
 
-    .btn-auth { background-color: #8b5cf6; color: white; }
-    .btn-auth:hover { background-color: #7c3aed; }
+    .btn-secondary:hover {
+      background-color: #d1d5db;
+    }
 
-    .btn-notify { background-color: #ec4899; color: white; }
-    .btn-notify:hover { background-color: #db2777; }
+    [data-theme="dark"] .btn-secondary:hover {
+      background-color: #475569;
+    }
 
-    .btn-annual { background-color: #14b8a6; color: white; }
-    .btn-annual:hover { background-color: #0d9488; }
+    .btn-workplace {
+      background-color: #10b981;
+    }
 
-    .theme-toggle-btn { background-color: #64748b; padding: 5px 9px; font-size: 12px; }
+    .btn-workplace:hover {
+      background-color: #059669;
+    }
+
+    .btn-batch {
+      background-color: #f59e0b;
+    }
+
+    .btn-batch:hover {
+      background-color: #d97706;
+    }
+
+    .btn-auth {
+      background-color: #8b5cf6;
+    }
+
+    .btn-auth:hover {
+      background-color: #7c3aed;
+    }
+
+    .btn-notify {
+      background-color: #ec4899;
+    }
+
+    .btn-notify:hover {
+      background-color: #db2777;
+    }
+
+    .btn-annual {
+      background-color: #14b8a6;
+    }
+
+    .btn-annual:hover {
+      background-color: #0d9488;
+    }
+
+    .theme-toggle-btn {
+      background-color: #64748b;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
 
     .view-toggle-group {
       display: flex;
@@ -172,7 +168,9 @@
       gap: 2px;
     }
 
-    [data-theme="dark"] .view-toggle-group { background: #334155; }
+    [data-theme="dark"] .view-toggle-group {
+      background: #334155;
+    }
 
     .view-toggle-btn {
       background: transparent;
@@ -183,9 +181,9 @@
     }
 
     .view-toggle-btn.active {
-      background: #3b82f6;
+      background: var(--primary);
       color: white;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     .date-picker-group {
@@ -195,7 +193,13 @@
       font-size: 12px;
     }
 
-    select, input[type="number"], input[type="time"], input[type="text"], input[type="date"], input[type="password"] {
+    select,
+    input[type="number"],
+    input[type="time"],
+    input[type="text"],
+    input[type="date"],
+    input[type="password"],
+    textarea {
       padding: 4px 6px;
       border: 1px solid var(--input-border);
       background-color: var(--input-bg);
@@ -203,9 +207,19 @@
       border-radius: 4px;
       font-size: 12px;
       outline: none;
+      width: auto;
     }
 
-    select:focus, input:focus { border-color: #3b82f6; }
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    select:focus,
+    input:focus,
+    textarea:focus {
+      border-color: var(--primary);
+    }
 
     .summary-card {
       background: var(--summary-bg);
@@ -215,7 +229,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       width: 100%;
       border: 1px solid rgba(255, 255, 255, 0.15);
       margin-top: 4px;
@@ -307,14 +321,23 @@
       line-height: 1.1;
     }
 
-    .salary-box.confirmed .salary-value { color: #34d399; }
-    .salary-box.estimated .salary-value { color: #60a5fa; }
-    .salary-box.actual-paid .salary-value { color: #f472b6; }
+    .salary-box.confirmed .salary-value {
+      color: #34d399;
+    }
+
+    .salary-box.estimated .salary-value {
+      color: #60a5fa;
+    }
+
+    .salary-box.actual-paid .salary-value {
+      color: #f472b6;
+    }
+
     .salary-box.total .salary-value {
       font-size: 18px;
       font-weight: 800;
       color: #fde047;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     .progress-section {
@@ -354,7 +377,7 @@
       background: var(--card-bg);
       padding: 8px 12px;
       border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       margin-bottom: 8px;
     }
 
@@ -396,7 +419,7 @@
     .calendar-container {
       background: var(--card-bg);
       border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       overflow: auto;
       max-height: 700px;
       position: relative;
@@ -404,7 +427,7 @@
 
     .calendar-grid {
       display: grid;
-      grid-template-columns: 50px repeat(7, minmax(130px, 1fr));
+      grid-template-columns: 58px repeat(7, minmax(130px, 1fr));
       min-width: 960px;
     }
 
@@ -454,10 +477,17 @@
       color: #ffffff;
     }
 
-    .calendar-header.is-today .header-date { color: #e0f2fe; }
+    .calendar-header.is-today .header-date {
+      color: #e0f2fe;
+    }
 
-    .day-sun { color: #ef4444; }
-    .day-sat { color: #3b82f6; }
+    .day-sun {
+      color: #ef4444;
+    }
+
+    .day-sat {
+      color: #3b82f6;
+    }
 
     .time-column {
       position: sticky;
@@ -481,37 +511,50 @@
       border-right: 1px solid var(--border-color);
       border-bottom: 1px solid var(--border-color);
       position: relative;
+      min-height: 120px;
+      background: var(--card-bg);
+      padding: 4px;
     }
 
     .day-cell.other-month {
       background-color: var(--cell-other-month-bg);
-      opacity: 0.6;
+      opacity: 0.65;
     }
 
-    .day-cell.has-shift { background-color: var(--cell-has-shift-bg); }
-    .day-cell.no-shift { background-color: var(--cell-no-shift-bg); }
-    .day-cell.is-today { background-color: var(--cell-today-bg) !important; }
-
-    .timeline-wrapper {
-      position: relative;
-      height: 448px;
+    .day-cell.has-shift {
+      background-color: var(--cell-has-shift-bg);
     }
 
-    .hour-line {
-      height: 28px;
-      border-bottom: 1px solid var(--border-color);
-      box-sizing: border-box;
+    .day-cell.no-shift {
+      background-color: var(--cell-no-shift-bg);
+    }
+
+    .day-cell.is-today {
+      background-color: var(--cell-today-bg) !important;
+    }
+
+    .day-number {
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: inline-block;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .day-cell.is-today .day-number {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--text-color);
     }
 
     .shift-card {
-      position: absolute;
-      left: 2px;
-      right: 2px;
-      border-radius: 3px;
-      padding: 2px 4px;
+      position: relative;
+      border-radius: 4px;
+      padding: 3px 5px;
       font-size: 10px;
       color: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      margin-bottom: 4px;
       overflow: hidden;
       z-index: 2;
       display: flex;
@@ -519,11 +562,11 @@
       justify-content: flex-start;
       gap: 1px;
       cursor: pointer;
-      transition: transform 0.1s;
+      transition: transform 0.1s ease;
     }
 
     .shift-card:hover {
-      transform: scale(1.02);
+      transform: scale(1.01);
       z-index: 5;
     }
 
@@ -533,6 +576,7 @@
       align-items: center;
       width: 100%;
       line-height: 1.1;
+      gap: 4px;
     }
 
     .shift-title {
@@ -577,7 +621,7 @@
     .list-container {
       background: var(--card-bg);
       border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       padding: 15px 20px;
       display: none;
     }
@@ -603,9 +647,17 @@
       font-size: 13px;
     }
 
-    .shift-list-table tr { border-bottom: 1px solid var(--sub-border-color); }
-    .shift-list-table tr.is-today { background-color: var(--cell-today-bg); }
-    .shift-list-table tr.is-off { color: var(--text-muted); }
+    .shift-list-table tr {
+      border-bottom: 1px solid var(--sub-border-color);
+    }
+
+    .shift-list-table tr.is-today {
+      background-color: var(--cell-today-bg);
+    }
+
+    .shift-list-table tr.is-off {
+      color: var(--text-muted);
+    }
 
     .shift-list-table td {
       padding: 8px 10px;
@@ -617,8 +669,13 @@
       font-weight: bold;
     }
 
-    .col-date.day-sun { color: #ef4444; }
-    .col-date.day-sat { color: #3b82f6; }
+    .col-date.day-sun {
+      color: #ef4444;
+    }
+
+    .col-date.day-sat {
+      color: #3b82f6;
+    }
 
     .multi-shift-container {
       display: flex;
@@ -658,21 +715,42 @@
       margin-left: auto;
     }
 
-    .btn-xs { padding: 3px 8px; font-size: 11px; }
+    .btn-xs {
+      padding: 3px 8px;
+      font-size: 11px;
+    }
 
-    .btn-edit { background-color: #f59e0b; color: white; }
-    .btn-edit:hover { background-color: #d97706; }
+    .btn-edit {
+      background-color: #f59e0b;
+      color: white;
+    }
 
-    .btn-copy { background-color: #06b6d4; color: white; }
-    .btn-copy:hover { background-color: #0891b2; }
+    .btn-edit:hover {
+      background-color: #d97706;
+    }
 
-    .btn-danger { background-color: #ef4444; color: white; }
-    .btn-danger:hover { background-color: #dc2626; }
+    .btn-copy {
+      background-color: #06b6d4;
+      color: white;
+    }
+
+    .btn-copy:hover {
+      background-color: #0891b2;
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger-dark);
+    }
 
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
+      inset: 0;
+      background: var(--modal-bg);
       display: none;
       justify-content: center;
       align-items: center;
@@ -687,7 +765,7 @@
       width: 90%;
       max-width: 580px;
       padding: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       max-height: 90vh;
       overflow-y: auto;
     }
@@ -728,6 +806,7 @@
     .workplace-item-header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
     }
 
@@ -744,13 +823,23 @@
       color: var(--text-sub);
     }
 
-    .edit-shift-form, .auth-form, .batch-form, .notify-form, .annual-form {
+    .edit-shift-form,
+    .auth-form,
+    .batch-form,
+    .notify-form,
+    .annual-form,
+    .workplace-form {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .edit-shift-form .form-group, .auth-form .form-group, .batch-form .form-group, .notify-form .form-group, .annual-form .form-group {
+    .edit-shift-form .form-group,
+    .auth-form .form-group,
+    .batch-form .form-group,
+    .notify-form .form-group,
+    .annual-form .form-group,
+    .workplace-form .form-group {
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -772,35 +861,119 @@
     }
 
     @media (max-width: 768px) {
-      body { padding: 6px; }
-      header { padding: 8px; gap: 8px; }
-      .nav-controls { flex-direction: column; align-items: stretch; gap: 8px; }
-      .nav-left-group { justify-content: space-between; width: 100%; }
-      .summary-card { padding: 8px 10px; gap: 8px; }
-      .summary-top-row { flex-direction: column; align-items: stretch; }
-      .summary-inputs { justify-content: space-between; width: 100%; }
-      .summary-results { width: 100%; justify-content: space-between; padding: 6px 8px; gap: 4px; }
-      .salary-box { padding: 0 4px; }
-      .salary-box .salary-label { font-size: 9px; }
-      .salary-box .salary-subinfo { font-size: 10px; }
-      .salary-box .salary-value { font-size: 12px; }
-      .salary-box.total .salary-value { font-size: 15px; }
-      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-      .form-group-memo { grid-column: span 2; }
-      .form-group-btn { grid-column: span 2; }
-      .form-group-btn button { width: 100%; padding: 8px; }
-      .calendar-grid { min-width: 650px; grid-template-columns: 40px repeat(7, minmax(85px, 1fr)); }
-      .list-container { padding: 10px; }
-      .shift-list-table { font-size: 12px; }
-      .shift-list-table td { padding: 6px 4px; }
-      .col-date { width: 70px; }
-      .col-workplace { width: 80px; }
-      .col-time { width: 80px; }
+      body {
+        padding: 6px;
+      }
+
+      header {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .nav-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .nav-left-group {
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .summary-card {
+        padding: 8px 10px;
+        gap: 8px;
+      }
+
+      .summary-top-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .summary-inputs {
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .summary-results {
+        width: 100%;
+        justify-content: space-between;
+        padding: 6px 8px;
+        gap: 4px;
+      }
+
+      .salary-box {
+        padding: 0 4px;
+      }
+
+      .salary-box .salary-label {
+        font-size: 9px;
+      }
+
+      .salary-box .salary-subinfo {
+        font-size: 10px;
+      }
+
+      .salary-box .salary-value {
+        font-size: 12px;
+      }
+
+      .salary-box.total .salary-value {
+        font-size: 15px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .form-group-memo {
+        grid-column: span 2;
+      }
+
+      .form-group-btn {
+        grid-column: span 2;
+      }
+
+      .form-group-btn button {
+        width: 100%;
+        padding: 8px;
+      }
+
+      .calendar-grid {
+        min-width: 650px;
+        grid-template-columns: 40px repeat(7, minmax(85px, 1fr));
+      }
+
+      .list-container {
+        padding: 10px;
+      }
+
+      .shift-list-table {
+        font-size: 12px;
+      }
+
+      .shift-list-table td {
+        padding: 6px 4px;
+      }
+
+      .col-date {
+        width: 70px;
+      }
+
+      .col-workplace {
+        width: 80px;
+      }
+
+      .col-time {
+        width: 80px;
+      }
     }
   </style>
 </head>
 <body>
-
   <header>
     <div class="nav-controls">
       <div class="nav-left-group">
@@ -836,7 +1009,8 @@
           <span id="rate-month-display" class="rate-month-label">集計期間</span>
           <div class="target-input-group">
             <label for="target-salary-input">🎯 月間目標:</label>
-            <input type="number" id="target-salary-input" value="85000" step="5000"> 円
+            <input type="number" id="target-salary-input" value="85000" step="5000" />
+            円
           </div>
         </div>
 
@@ -859,12 +1033,12 @@
             <div id="total-salary" class="salary-value">￥0</div>
           </div>
 
-          <!-- 月別の振込確定額 (手取り額) 入力エリア -->
           <div class="salary-box actual-paid">
             <div class="salary-label">今月の振込確定額</div>
             <div class="target-input-group" style="margin-top:2px; background: rgba(255,255,255,0.2);">
               <label for="monthly-actual-paid-input">💴</label>
-              <input type="number" id="monthly-actual-paid-input" placeholder="振込額" step="1000"> 円
+              <input type="number" id="monthly-actual-paid-input" placeholder="振込額" step="1000" />
+              円
             </div>
           </div>
         </div>
@@ -893,19 +1067,19 @@
       </div>
       <div class="form-group">
         <label>表示色</label>
-        <input type="color" id="shift-color" value="#3b82f6">
+        <input type="color" id="shift-color" value="#3b82f6" />
       </div>
       <div class="form-group">
         <label>開始時間</label>
-        <input type="time" id="shift-start" value="08:00" step="900">
+        <input type="time" id="shift-start" value="08:00" step="900" />
       </div>
       <div class="form-group">
         <label>終了時間</label>
-        <input type="time" id="shift-end" value="17:00" step="900">
+        <input type="time" id="shift-end" value="17:00" step="900" />
       </div>
       <div class="form-group form-group-memo">
         <label>メモ</label>
-        <input type="text" id="shift-memo" placeholder="ホール、レジなど">
+        <input type="text" id="shift-memo" placeholder="ホール、レジなど" />
       </div>
       <div class="form-group form-group-btn" style="margin-top: auto;">
         <button id="add-shift-btn">シフト追加</button>
@@ -927,7 +1101,33 @@
     </table>
   </div>
 
-  <!-- モーダル: 年間シミュレーター (扶養控除) -->
+  <div class="modal-overlay" id="workplace-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">🏢 バイト先設定</div>
+        <button class="modal-close-btn" id="close-workplace-modal-btn">&times;</button>
+      </div>
+
+      <div class="workplace-form">
+        <div class="form-group">
+          <label>店名</label>
+          <input id="workplace-name-input" type="text" placeholder="例: コンビニA" />
+        </div>
+        <div class="form-group">
+          <label>時給</label>
+          <input id="workplace-rate-input" type="number" value="1100" min="0" step="50" />
+        </div>
+        <div class="form-group">
+          <label>表示色</label>
+          <input id="workplace-color-input" type="color" value="#3b82f6" />
+        </div>
+        <button id="add-workplace-btn">バイト先を追加</button>
+      </div>
+
+      <div id="workplace-list" style="margin-top: 18px;"></div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="annual-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -963,7 +1163,6 @@
     </div>
   </div>
 
-  <!-- モーダル: 当日シフト通知設定 -->
   <div class="modal-overlay" id="notify-modal">
     <div class="modal-card">
       <div class="modal-header">
@@ -983,7 +1182,7 @@
         </div>
         <div class="form-group">
           <label>通知実行時刻</label>
-          <input type="time" id="notify-time-input" value="07:00">
+          <input type="time" id="notify-time-input" value="07:00" />
         </div>
         <div style="margin-top:8px; display:flex; gap:8px;">
           <button id="request-notify-permission-btn" class="btn-notify" style="flex:1;">通知の権限を許可 / 設定保存</button>
@@ -999,1522 +1198,877 @@
         <div class="modal-title">🔑 パスワードで端末連携</div>
         <button class="modal-close-btn" id="close-auth-modal-btn">&times;</button>
       </div>
-      
-      <div id="auth-unlogged-view">
-        <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">
-          PCとスマホで同じパスワードを入力すると、シフトデータをリアルタイムで共有・同期できます。
-        </p>
-        <div class="auth-form">
-          <div class="form-group">
-            <label>パスワード (合言葉)</label>
-            <input type="password" id="auth-password" placeholder="4文字以上のパスワード">
-          </div>
-          <div style="display: flex; gap: 8px; margin-top: 6px;">
-            <button id="pass-connect-btn" style="flex:1;">接続 / 同期開始</button>
-          </div>
+      <div class="auth-form">
+        <div class="form-group">
+          <label>接続用パスワード</label>
+          <input type="password" id="auth-password-input" placeholder="パスワードを入力" />
         </div>
+        <div class="form-group">
+          <label>端末名</label>
+          <input type="text" id="auth-device-name-input" placeholder="例: iPhone 15" />
+        </div>
+        <button id="save-auth-btn">保存して連携</button>
+        <p id="auth-status-text" style="font-size:11px; color:var(--text-sub);"></p>
       </div>
-
-      <div id="auth-logged-view" style="display: none;">
-        <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 6px;">現在の同期状態:</p>
-        <p id="logged-pass-info" style="font-weight: bold; font-size: 13px; margin-bottom: 12px; word-break: break-all; color: #10b981;"></p>
-        <button id="logout-btn" class="btn-danger" style="width: 100%;">連携解除 (切断)</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="workplace-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title">🏢 バイト先設定 (締め日・手当設定)</div>
-        <button class="modal-close-btn" id="close-workplace-modal-btn">&times;</button>
-      </div>
-      <div id="workplace-list-container"></div>
-      <button id="add-workplace-btn" class="btn-workplace" style="width: 100%; margin-top: 10px;">＋ 新しいバイト先を追加</button>
     </div>
   </div>
 
   <div class="modal-overlay" id="batch-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title">⚡ 固定シフト一括登録</div>
+        <div class="modal-title">⚡ 一括登録</div>
         <button class="modal-close-btn" id="close-batch-modal-btn">&times;</button>
       </div>
       <div class="batch-form">
-        <div class="form-group">
-          <label>バイト先</label>
-          <select id="batch-workplace-select"></select>
-        </div>
-        <div class="form-group">
-          <label>対象曜日</label>
-          <div class="weekday-checkboxes">
-            <label><input type="checkbox" class="batch-weekday" value="1">月</label>
-            <label><input type="checkbox" class="batch-weekday" value="2">火</label>
-            <label><input type="checkbox" class="batch-weekday" value="3">水</label>
-            <label><input type="checkbox" class="batch-weekday" value="4">木</label>
-            <label><input type="checkbox" class="batch-weekday" value="5">金</label>
-            <label><input type="checkbox" class="batch-weekday" value="6">土</label>
-            <label><input type="checkbox" class="batch-weekday" value="0">日</label>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>開始時間</label>
-          <input type="time" id="batch-start" value="09:00" step="900">
-        </div>
-        <div class="form-group">
-          <label>終了時間</label>
-          <input type="time" id="batch-end" value="17:00" step="900">
-        </div>
-        <div class="form-group">
-          <label>メモ</label>
-          <input type="text" id="batch-memo" placeholder="固定シフトなど">
-        </div>
-        <p style="font-size:11px; color:var(--text-sub);">選択中表示月の1日〜月末の指定曜日に一括生成されます。</p>
-        <button id="execute-batch-btn" class="btn-batch" style="margin-top:8px;">現在表示中の月へ一括登録</button>
+        <p style="font-size:12px; color:var(--text-sub);">
+          1行ごとに「日付,店名,開始,終了,メモ」を入力してください。<br />
+          例: 2026-10-15,コンビニA,09:00,17:00,ホール
+        </p>
+        <textarea id="batch-textarea" placeholder="2026-10-15,コンビニA,09:00,17:00,ホール&#10;2026-10-16,コンビニB,10:00,18:00,レジ"></textarea>
+        <button id="apply-batch-btn">一括登録を反映</button>
       </div>
     </div>
   </div>
 
-  <!-- シフト編集モーダル (編集・複製・削除) -->
-  <div class="modal-overlay" id="edit-shift-modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div class="modal-title">✏️ シフト編集・複製</div>
-        <button class="modal-close-btn" id="close-edit-modal-btn">&times;</button>
-      </div>
-      <div class="edit-shift-form">
-        <input type="hidden" id="edit-shift-id">
-        <div class="form-group">
-          <label>バイト先</label>
-          <select id="edit-shift-workplace"></select>
-        </div>
-        <div class="form-group">
-          <label>日付</label>
-          <input type="date" id="edit-shift-date">
-        </div>
-        <div class="form-group">
-          <label>表示色</label>
-          <input type="color" id="edit-shift-color">
-        </div>
-        <div class="form-group">
-          <label>開始時間</label>
-          <input type="time" id="edit-shift-start" step="900">
-        </div>
-        <div class="form-group">
-          <label>終了時間</label>
-          <input type="time" id="edit-shift-end" step="900">
-        </div>
-        <div class="form-group">
-          <label>メモ</label>
-          <input type="text" id="edit-shift-memo">
-        </div>
-        <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px;">
-          <button id="delete-shift-edit-btn" class="btn-danger">削除</button>
-          <button id="copy-shift-edit-btn" class="btn-copy">別日へ複製</button>
-          <button id="save-shift-edit-btn">保存する</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <script>
+    const STORAGE_KEY = "baito-shifto-state-v1";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      createUserWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      setDoc, 
-      onSnapshot 
-    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+    const defaultState = {
+      theme: "light",
+      targetSalary: 85000,
+      actualPaid: 0,
+      notifyEnabled: false,
+      notifyTime: "07:00",
+      workplaces: [
+        { id: "wp-1", name: "コンビニA", hourlyRate: 1100, color: "#3b82f6" },
+        { id: "wp-2", name: "コンビニB", hourlyRate: 1200, color: "#10b981" }
+      ],
+      shifts: [
+        { id: "s-1", workplaceId: "wp-1", date: getTodayString(-1), start: "09:00", end: "17:00", memo: "ホール" },
+        { id: "s-2", workplaceId: "wp-2", date: getTodayString(2), start: "10:00", end: "18:00", memo: "レジ" }
+      ]
     };
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        const swCode = `self.addEventListener('fetch', (e) => {});`;
-        const blob = new Blob([swCode], { type: 'text/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
-      });
-    }
+    let state = loadState();
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    let currentUser = null;
-    let unsubscribeFirestore = null;
+    const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+    const weekdayNames = ["日", "月", "火", "水", "木", "金", "土"];
 
-    const START_HOUR = 8;
-    const END_HOUR = 23;
-    const HOUR_HEIGHT = 28;
-
-    let currentDate = new Date();
-    let shifts = JSON.parse(localStorage.getItem('shift_app_shifts')) || [];
-    
-    let workplaces = JSON.parse(localStorage.getItem('shift_app_workplaces')) || [
-      { id: 'wp_1', name: 'ひばりが丘', hourly: 1100, nightHourly: 1375, transport: 500, color: '#3b82f6', breakThreshold: 6, breakMinutes: 45, closingDay: 0, overtimeRate: 1.25, holidayTarget: 'sun', holidayRate: 1.35 },
-      { id: 'wp_2', name: 'サブバイト', hourly: 1200, nightHourly: 1500, transport: 0, color: '#10b981', breakThreshold: 6, breakMinutes: 60, closingDay: 0, overtimeRate: 1.25, holidayTarget: 'none', holidayRate: 1.00 }
-    ];
-
-    let monthlyActualPaid = JSON.parse(localStorage.getItem('shift_app_monthly_actual_paid')) || {};
-
-    let notifyConfig = JSON.parse(localStorage.getItem('shift_app_notify_config')) || {
-      enabled: false,
-      time: '07:00',
-      lastNotifiedDate: ''
-    };
-
-    let currentViewMode = 'calendar';
-
-    const yearSelect = document.getElementById('year-select');
-    const monthSelect = document.getElementById('month-select');
-    const prevMonthBtn = document.getElementById('prev-month-btn');
-    const nextMonthBtn = document.getElementById('next-month-btn');
-    const todayBtn = document.getElementById('today-btn');
-    const todayBadge = document.getElementById('today-badge');
-    const rateMonthDisplay = document.getElementById('rate-month-display');
-    const targetSalaryInput = document.getElementById('target-salary-input');
-    const monthlyActualPaidInput = document.getElementById('monthly-actual-paid-input');
-    const progressBarFill = document.getElementById('progress-bar-fill');
-    const progressText = document.getElementById('progress-text');
-    
-    const confirmedDaysEl = document.getElementById('confirmed-days');
-    const confirmedHoursEl = document.getElementById('confirmed-hours');
-    const confirmedSalaryEl = document.getElementById('confirmed-salary');
-    
-    const estimatedDaysEl = document.getElementById('estimated-days');
-    const estimatedHoursEl = document.getElementById('estimated-hours');
-    const estimatedSalaryEl = document.getElementById('estimated-salary');
-    
-    const totalDaysEl = document.getElementById('total-days');
-    const totalHoursEl = document.getElementById('total-hours');
-    const totalSalaryEl = document.getElementById('total-salary');
-
-    const shiftWorkplaceSelect = document.getElementById('shift-workplace-select');
-    const shiftDateSelect = document.getElementById('shift-date-select');
-    const shiftStartInput = document.getElementById('shift-start');
-    const shiftEndInput = document.getElementById('shift-end');
-    const shiftMemoInput = document.getElementById('shift-memo');
-    const shiftColorInput = document.getElementById('shift-color');
-    const addShiftBtn = document.getElementById('add-shift-btn');
-    const calendarGrid = document.getElementById('calendar-grid');
-    const calendarContainer = document.getElementById('calendar-container');
-    const listContainer = document.getElementById('list-container');
-    const listTableBody = document.getElementById('list-table-body');
-    const listTitle = document.getElementById('list-title');
-    const viewCalendarBtn = document.getElementById('view-calendar-btn');
-    const viewListBtn = document.getElementById('view-list-btn');
-    const copyListBtn = document.getElementById('copy-list-btn');
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
-
-    const authModal = document.getElementById('auth-modal');
-    const openAuthModalBtn = document.getElementById('open-auth-modal-btn');
-    const closeAuthModalBtn = document.getElementById('close-auth-modal-btn');
-    const passConnectBtn = document.getElementById('pass-connect-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const authPasswordInput = document.getElementById('auth-password');
-    const authUnloggedView = document.getElementById('auth-unlogged-view');
-    const authLoggedView = document.getElementById('auth-logged-view');
-    const loggedPassInfo = document.getElementById('logged-pass-info');
-
-    const workplaceModal = document.getElementById('workplace-modal');
-    const openWorkplaceModalBtn = document.getElementById('open-workplace-modal-btn');
-    const closeWorkplaceModalBtn = document.getElementById('close-workplace-modal-btn');
-    const workplaceListContainer = document.getElementById('workplace-list-container');
-    const addWorkplaceBtn = document.getElementById('add-workplace-btn');
-
-    const batchModal = document.getElementById('batch-modal');
-    const openBatchModalBtn = document.getElementById('open-batch-modal-btn');
-    const closeBatchModalBtn = document.getElementById('close-batch-modal-btn');
-    const batchWorkplaceSelect = document.getElementById('batch-workplace-select');
-    const batchStartInput = document.getElementById('batch-start');
-    const batchEndInput = document.getElementById('batch-end');
-    const batchMemoInput = document.getElementById('batch-memo');
-    const executeBatchBtn = document.getElementById('execute-batch-btn');
-
-    const notifyModal = document.getElementById('notify-modal');
-    const openNotifyModalBtn = document.getElementById('open-notify-modal-btn');
-    const closeNotifyModalBtn = document.getElementById('close-notify-modal-btn');
-    const notifyEnabledSelect = document.getElementById('notify-enabled-select');
-    const notifyTimeInput = document.getElementById('notify-time-input');
-    const requestNotifyPermissionBtn = document.getElementById('request-notify-permission-btn');
-    const notifyStatusText = document.getElementById('notify-status-text');
-
-    const annualModal = document.getElementById('annual-modal');
-    const openAnnualModalBtn = document.getElementById('open-annual-modal-btn');
-    const closeAnnualModalBtn = document.getElementById('close-annual-modal-btn');
-    const annualYearSelect = document.getElementById('annual-year-select');
-    const annualTargetSelect = document.getElementById('annual-target-select');
-    const annualYearLabel = document.getElementById('annual-year-label');
-    const annualTotalVal = document.getElementById('annual-total-val');
-    const annualProgressFill = document.getElementById('annual-progress-fill');
-    const annualProgressText = document.getElementById('annual-progress-text');
-    const annualRemainText = document.getElementById('annual-remain-text');
-
-    const editShiftModal = document.getElementById('edit-shift-modal');
-    const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
-    const editShiftIdInput = document.getElementById('edit-shift-id');
-    const editShiftWorkplaceSelect = document.getElementById('edit-shift-workplace');
-    const editShiftDateInput = document.getElementById('edit-shift-date');
-    const editShiftColorInput = document.getElementById('edit-shift-color');
-    const editShiftStartInput = document.getElementById('edit-shift-start');
-    const editShiftEndInput = document.getElementById('edit-shift-end');
-    const editShiftMemoInput = document.getElementById('edit-shift-memo');
-    const saveShiftEditBtn = document.getElementById('save-shift-edit-btn');
-    const copyShiftEditBtn = document.getElementById('copy-shift-edit-btn');
-    const deleteShiftEditBtn = document.getElementById('delete-shift-edit-btn');
-
-    function convertPasswordToEmailAndPassword(password) {
-      const rawPass = password.trim();
-      const internalPass = rawPass.length < 6 ? (rawPass + "000000").slice(0, 6) : rawPass;
-      const internalEmail = `user_${rawPass}@shift.app`;
-      return { internalEmail, internalPass };
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        openAuthModalBtn.textContent = '🟢 同期中';
-        loggedPassInfo.textContent = '🟢 端末間でリアルタイム同期中';
-        authUnloggedView.style.display = 'none';
-        authLoggedView.style.display = 'block';
-
-        const userDocRef = doc(db, 'users', user.uid);
-        unsubscribeFirestore = onSnapshot(userDocRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            if (data.shifts) shifts = data.shifts;
-            if (data.workplaces) workplaces = data.workplaces;
-            if (data.targetSalary !== undefined) targetSalaryInput.value = data.targetSalary;
-            if (data.monthlyActualPaid) monthlyActualPaid = data.monthlyActualPaid;
-            
-            localStorage.setItem('shift_app_shifts', JSON.stringify(shifts));
-            localStorage.setItem('shift_app_workplaces', JSON.stringify(workplaces));
-            localStorage.setItem('shift_app_target_salary', targetSalaryInput.value);
-            localStorage.setItem('shift_app_monthly_actual_paid', JSON.stringify(monthlyActualPaid));
-
-            renderWorkplaceOptions();
-            updateCalendar(false);
-          } else {
-            saveAllDataToCloud();
-          }
-        });
-      } else {
-        openAuthModalBtn.textContent = '☁️ 端末連携';
-        authUnloggedView.style.display = 'block';
-        authLoggedView.style.display = 'none';
-        if (unsubscribeFirestore) unsubscribeFirestore();
-      }
+    document.addEventListener("DOMContentLoaded", () => {
+      initializeSelectors();
+      bindEvents();
+      applyTheme();
+      renderAll();
+      setTodayBadge();
     });
 
-    function saveAllDataToCloud() {
-      if (!currentUser) return;
-      const userDocRef = doc(db, 'users', currentUser.uid);
-      const targetVal = parseInt(targetSalaryInput.value, 10) || 0;
-      setDoc(userDocRef, {
-        shifts: shifts,
-        workplaces: workplaces,
-        targetSalary: targetVal,
-        monthlyActualPaid: monthlyActualPaid,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
-    }
-
-    passConnectBtn.addEventListener('click', async () => {
-      const password = authPasswordInput.value.trim();
-      if (!password || password.length < 4) {
-        alert('パスワードは4文字以上で入力してください。');
-        return;
-      }
-
-      const { internalEmail, internalPass } = convertPasswordToEmailAndPassword(password);
-
+    function loadState() {
       try {
-        await signInWithEmailAndPassword(auth, internalEmail, internalPass);
-        authModal.style.display = 'none';
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        return {
+          ...defaultState,
+          ...stored,
+          workplaces: Array.isArray(stored.workplaces) && stored.workplaces.length ? stored.workplaces : defaultState.workplaces,
+          shifts: Array.isArray(stored.shifts) ? stored.shifts : defaultState.shifts
+        };
       } catch (error) {
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
-          try {
-            await createUserWithEmailAndPassword(auth, internalEmail, internalPass);
-            alert('新しいパスワードで連携グループを作成しました！PCやスマホで同じパスワードを入力してください。');
-            authModal.style.display = 'none';
-          } catch (createError) {
-            alert('接続エラー: ' + createError.message);
-          }
-        } else {
-          alert('接続エラー: ' + error.message);
-        }
+        return { ...defaultState };
       }
-    });
+    }
 
-    logoutBtn.addEventListener('click', async () => {
-      await signOut(auth);
-      authModal.style.display = 'none';
-    });
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
 
-    openAuthModalBtn.addEventListener('click', () => { authModal.style.display = 'flex'; });
-    closeAuthModalBtn.addEventListener('click', () => { authModal.style.display = 'none'; });
-
-    function init() {
-      initTheme();
-      displayTodayBadge();
-
-      const savedTarget = localStorage.getItem('shift_app_target_salary');
-      if (savedTarget !== null) {
-        targetSalaryInput.value = savedTarget;
-      }
-
+    function initializeSelectors() {
       const currentYear = new Date().getFullYear();
-      for (let y = currentYear - 2; y <= currentYear + 3; y++) {
-        const option = document.createElement('option');
-        option.value = y;
-        option.textContent = y;
-        yearSelect.appendChild(option);
+      const yearSelect = document.getElementById("year-select");
+      const monthSelect = document.getElementById("month-select");
 
-        const annualOpt = document.createElement('option');
-        annualOpt.value = y;
-        annualOpt.textContent = y + '年';
-        if (y === currentYear) annualOpt.selected = true;
-        annualYearSelect.appendChild(annualOpt);
+      for (let y = currentYear - 1; y <= currentYear + 3; y++) {
+        const option = document.createElement("option");
+        option.value = String(y);
+        option.textContent = `${y}年`;
+        yearSelect.appendChild(option);
       }
 
       for (let m = 1; m <= 12; m++) {
-        const option = document.createElement('option');
-        option.value = m;
-        option.textContent = m;
+        const option = document.createElement("option");
+        option.value = String(m);
+        option.textContent = `${monthNames[m - 1]}`;
         monthSelect.appendChild(option);
       }
 
-      renderWorkplaceOptions();
-      updateCalendar(true);
+      yearSelect.value = String(currentYear);
+      monthSelect.value = String(new Date().getMonth() + 1);
+    }
 
-      prevMonthBtn.addEventListener('click', () => changeMonth(-1));
-      nextMonthBtn.addEventListener('click', () => changeMonth(1));
-      todayBtn.addEventListener('click', () => {
-        currentDate = new Date();
-        updateCalendar(true);
+    function bindEvents() {
+      document.getElementById("prev-month-btn").addEventListener("click", () => {
+        const year = Number(document.getElementById("year-select").value);
+        const month = Number(document.getElementById("month-select").value);
+        const prev = new Date(year, month - 2, 1);
+        document.getElementById("year-select").value = String(prev.getFullYear());
+        document.getElementById("month-select").value = String(prev.getMonth() + 1);
+        renderAll();
       });
 
-      yearSelect.addEventListener('change', () => {
-        currentDate.setFullYear(parseInt(yearSelect.value));
-        updateCalendar(false);
+      document.getElementById("next-month-btn").addEventListener("click", () => {
+        const year = Number(document.getElementById("year-select").value);
+        const month = Number(document.getElementById("month-select").value);
+        const next = new Date(year, month, 1);
+        document.getElementById("year-select").value = String(next.getFullYear());
+        document.getElementById("month-select").value = String(next.getMonth() + 1);
+        renderAll();
       });
 
-      monthSelect.addEventListener('change', () => {
-        currentDate.setMonth(parseInt(monthSelect.value) - 1);
-        updateCalendar(false);
+      document.getElementById("today-btn").addEventListener("click", () => {
+        const today = new Date();
+        document.getElementById("year-select").value = String(today.getFullYear());
+        document.getElementById("month-select").value = String(today.getMonth() + 1);
+        renderAll();
       });
 
-      targetSalaryInput.addEventListener('input', () => {
-        const val = parseInt(targetSalaryInput.value, 10) || 0;
-        localStorage.setItem('shift_app_target_salary', val);
-        calculateSalary();
-        saveAllDataToCloud();
+      document.getElementById("year-select").addEventListener("change", renderAll);
+      document.getElementById("month-select").addEventListener("change", renderAll);
+
+      document.getElementById("target-salary-input").addEventListener("input", () => {
+        state.targetSalary = Number(document.getElementById("target-salary-input").value || 0);
+        saveState();
+        updateSummary();
       });
 
-      monthlyActualPaidInput.addEventListener('input', () => {
-        const year = currentDate.getFullYear();
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const key = `${year}-${month}`;
-        const val = monthlyActualPaidInput.value;
+      document.getElementById("monthly-actual-paid-input").addEventListener("input", () => {
+        state.actualPaid = Number(document.getElementById("monthly-actual-paid-input").value || 0);
+        saveState();
+        updateSummary();
+      });
 
-        if (val === '') {
-          delete monthlyActualPaid[key];
-        } else {
-          monthlyActualPaid[key] = parseFloat(val) || 0;
+      document.getElementById("add-shift-btn").addEventListener("click", addShift);
+      document.getElementById("copy-list-btn").addEventListener("click", copyList);
+
+      document.getElementById("theme-toggle-btn").addEventListener("click", () => {
+        state.theme = state.theme === "dark" ? "light" : "dark";
+        saveState();
+        applyTheme();
+      });
+
+      document.getElementById("view-calendar-btn").addEventListener("click", () => {
+        showCalendarView();
+      });
+
+      document.getElementById("view-list-btn").addEventListener("click", () => {
+        showListView();
+      });
+
+      document.getElementById("open-workplace-modal-btn").addEventListener("click", () => openModal("workplace-modal"));
+      document.getElementById("close-workplace-modal-btn").addEventListener("click", () => closeModal("workplace-modal"));
+      document.getElementById("add-workplace-btn").addEventListener("click", addWorkplace);
+
+      document.getElementById("open-auth-modal-btn").addEventListener("click", () => openModal("auth-modal"));
+      document.getElementById("close-auth-modal-btn").addEventListener("click", () => closeModal("auth-modal"));
+      document.getElementById("save-auth-btn").addEventListener("click", saveAuth);
+
+      document.getElementById("open-batch-modal-btn").addEventListener("click", () => openModal("batch-modal"));
+      document.getElementById("close-batch-modal-btn").addEventListener("click", () => closeModal("batch-modal"));
+      document.getElementById("apply-batch-btn").addEventListener("click", applyBatchImport);
+
+      document.getElementById("open-annual-modal-btn").addEventListener("click", () => {
+        renderAnnualSummary();
+        openModal("annual-modal");
+      });
+      document.getElementById("close-annual-modal-btn").addEventListener("click", () => closeModal("annual-modal"));
+      document.getElementById("annual-target-select").addEventListener("change", renderAnnualSummary);
+
+      document.getElementById("open-notify-modal-btn").addEventListener("click", () => openModal("notify-modal"));
+      document.getElementById("close-notify-modal-btn").addEventListener("click", () => closeModal("notify-modal"));
+      document.getElementById("request-notify-permission-btn").addEventListener("click", requestNotificationPermission);
+
+      document.getElementById("notify-enabled-select").addEventListener("change", () => {
+        state.notifyEnabled = document.getElementById("notify-enabled-select").value === "true";
+        saveState();
+        updateNotificationStatus();
+      });
+
+      document.getElementById("notify-time-input").addEventListener("change", () => {
+        state.notifyTime = document.getElementById("notify-time-input").value;
+        saveState();
+        updateNotificationStatus();
+      });
+
+      document.getElementById("annual-year-select").addEventListener("change", renderAnnualSummary);
+      document.getElementById("shift-workplace-select").addEventListener("change", () => {
+        const wp = getWorkplace(document.getElementById("shift-workplace-select").value);
+        if (wp) document.getElementById("shift-color").value = wp.color || "#3b82f6";
+      });
+
+      document.getElementById("calendar-grid").addEventListener("click", (event) => {
+        const deleteBtn = event.target.closest(".shift-delete-btn");
+        if (!deleteBtn) return;
+        const shiftId = deleteBtn.dataset.shiftId;
+        if (shiftId) {
+          state.shifts = state.shifts.filter((shift) => shift.id !== shiftId);
+          saveState();
+          renderAll();
         }
-
-        localStorage.setItem('shift_app_monthly_actual_paid', JSON.stringify(monthlyActualPaid));
-        saveAllDataToCloud();
-        calculateSalary();
       });
 
-      shiftWorkplaceSelect.addEventListener('change', () => {
-        const selectedWp = workplaces.find(w => w.id === shiftWorkplaceSelect.value);
-        if (selectedWp) { shiftColorInput.value = selectedWp.color; }
-      });
-
-      editShiftWorkplaceSelect.addEventListener('change', () => {
-        const selectedWp = workplaces.find(w => w.id === editShiftWorkplaceSelect.value);
-        if (selectedWp) { editShiftColorInput.value = selectedWp.color; }
-      });
-
-      addShiftBtn.addEventListener('click', addShift);
-
-      viewCalendarBtn.addEventListener('click', () => setViewMode('calendar'));
-      viewListBtn.addEventListener('click', () => setViewMode('list'));
-      copyListBtn.addEventListener('click', copyListText);
-      themeToggleBtn.addEventListener('click', toggleTheme);
-
-      openWorkplaceModalBtn.addEventListener('click', () => {
-        renderWorkplaceModalList();
-        workplaceModal.style.display = 'flex';
-      });
-      closeWorkplaceModalBtn.addEventListener('click', () => { workplaceModal.style.display = 'none'; });
-      addWorkplaceBtn.addEventListener('click', addNewWorkplace);
-
-      openBatchModalBtn.addEventListener('click', () => { batchModal.style.display = 'flex'; });
-      closeBatchModalBtn.addEventListener('click', () => { batchModal.style.display = 'none'; });
-      executeBatchBtn.addEventListener('click', executeBatchAdd);
-
-      openNotifyModalBtn.addEventListener('click', () => {
-        notifyEnabledSelect.value = notifyConfig.enabled ? "true" : "false";
-        notifyTimeInput.value = notifyConfig.time || "07:00";
-        updateNotifyStatusText();
-        notifyModal.style.display = 'flex';
-      });
-      closeNotifyModalBtn.addEventListener('click', () => { notifyModal.style.display = 'none'; });
-      requestNotifyPermissionBtn.addEventListener('click', setupNotification);
-
-      openAnnualModalBtn.addEventListener('click', () => {
-        calculateAnnualSalary();
-        annualModal.style.display = 'flex';
-      });
-      closeAnnualModalBtn.addEventListener('click', () => { annualModal.style.display = 'none'; });
-      annualYearSelect.addEventListener('change', calculateAnnualSalary);
-      annualTargetSelect.addEventListener('change', calculateAnnualSalary);
-
-      closeEditModalBtn.addEventListener('click', () => { editShiftModal.style.display = 'none'; });
-      saveShiftEditBtn.addEventListener('click', saveShiftEdit);
-      copyShiftEditBtn.addEventListener('click', copyShiftDuplicate);
-      deleteShiftEditBtn.addEventListener('click', () => {
-        const id = editShiftIdInput.value;
-        if (id) deleteShift(id);
-        editShiftModal.style.display = 'none';
-      });
-
-      setInterval(checkTodayShiftNotification, 60000);
-      checkTodayShiftNotification();
-    }
-
-    function initTheme() {
-      const savedTheme = localStorage.getItem('shift_app_theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      updateThemeButtonText(savedTheme);
-    }
-
-    function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('shift_app_theme', newTheme);
-      updateThemeButtonText(newTheme);
-    }
-
-    function updateThemeButtonText(theme) {
-      themeToggleBtn.textContent = theme === 'light' ? '🌙 ダーク' : '☀️ ライト';
-    }
-
-    function renderWorkplaceOptions() {
-      shiftWorkplaceSelect.innerHTML = '';
-      editShiftWorkplaceSelect.innerHTML = '';
-      batchWorkplaceSelect.innerHTML = '';
-
-      workplaces.forEach(wp => {
-        const opt1 = document.createElement('option'); opt1.value = wp.id; opt1.textContent = wp.name; shiftWorkplaceSelect.appendChild(opt1);
-        const opt2 = document.createElement('option'); opt2.value = wp.id; opt2.textContent = wp.name; editShiftWorkplaceSelect.appendChild(opt2);
-        const opt3 = document.createElement('option'); opt3.value = wp.id; opt3.textContent = wp.name; batchWorkplaceSelect.appendChild(opt3);
-      });
-
-      if (workplaces.length > 0) {
-        shiftColorInput.value = workplaces[0].color;
-      }
-    }
-
-    function updateNotifyStatusText() {
-      if (!('Notification' in window)) {
-        notifyStatusText.textContent = "⚠️ このブラウザは通知に対応していません";
-        notifyStatusText.style.color = "#ef4444";
-      } else if (Notification.permission === 'granted') {
-        notifyStatusText.textContent = notifyConfig.enabled ? "🟢 通知許可済み・有効" : "⚪ 通知許可済み（無効設定中）";
-        notifyStatusText.style.color = notifyConfig.enabled ? "#10b981" : "#94a3b8";
-      } else if (Notification.permission === 'denied') {
-        notifyStatusText.textContent = "🔴 ブラウザの通知がブロックされています";
-        notifyStatusText.style.color = "#ef4444";
-      } else {
-        notifyStatusText.textContent = "🟡 通知権限が未設定です";
-        notifyStatusText.style.color = "#f59e0b";
-      }
-    }
-
-    async function setupNotification() {
-      if (!('Notification' in window)) {
-        alert("お使いの端末・ブラウザは通知機能に対応していません。");
-        return;
-      }
-
-      let permission = Notification.permission;
-      if (permission !== 'granted') {
-        permission = await Notification.requestPermission();
-      }
-
-      if (permission === 'granted') {
-        notifyConfig.enabled = (notifyEnabledSelect.value === 'true');
-        notifyConfig.time = notifyTimeInput.value || '07:00';
-        localStorage.setItem('shift_app_notify_config', JSON.stringify(notifyConfig));
-        updateNotifyStatusText();
-        alert("通知設定を保存しました！");
-        notifyModal.style.display = 'none';
-        checkTodayShiftNotification();
-      } else {
-        alert("通知の送信が許可されませんでした。ブラウザの通知設定をご確認ください。");
-        updateNotifyStatusText();
-      }
-    }
-
-    function checkTodayShiftNotification() {
-      if (!notifyConfig.enabled || Notification.permission !== 'granted') return;
-
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
-      const currentDateDay = String(now.getDate()).padStart(2, '0');
-      const todayStr = `${currentYear}-${currentMonth}-${currentDateDay}`;
-
-      if (notifyConfig.lastNotifiedDate === todayStr) return;
-
-      const currentHours = String(now.getHours()).padStart(2, '0');
-      const currentMins = String(now.getMinutes()).padStart(2, '0');
-      const currentTimeStr = `${currentHours}:${currentMins}`;
-
-      if (currentTimeStr >= notifyConfig.time) {
-        const todayShifts = shifts.filter(s => s.date === todayStr).sort((a,b) => a.start.localeCompare(b.start));
-
-        if (todayShifts.length > 0) {
-          const shiftDetails = todayShifts.map(s => {
-            const wp = workplaces.find(w => w.id === s.workplaceId);
-            return `${wp ? wp.name : 'バイト'} (${s.start}〜${s.end})`;
-          }).join(', ');
-
-          const title = "📅 本日のシフト通知";
-          const options = {
-            body: `今日はシフトが入っています！\n【予定】${shiftDetails}`,
-            icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>'
-          };
-
-          if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
-          } else {
-            new Notification(title, options);
-          }
+      document.getElementById("list-table-body").addEventListener("click", (event) => {
+        const deleteBtn = event.target.closest(".delete-shift-btn");
+        if (!deleteBtn) return;
+        const shiftId = deleteBtn.dataset.shiftId;
+        if (shiftId) {
+          state.shifts = state.shifts.filter((shift) => shift.id !== shiftId);
+          saveState();
+          renderAll();
         }
-
-        notifyConfig.lastNotifiedDate = todayStr;
-        localStorage.setItem('shift_app_notify_config', JSON.stringify(notifyConfig));
-      }
-    }
-
-    /* 年間シミュレーター計算 (月別振込確定額優先) */
-    function calculateAnnualSalary() {
-      const selectedYear = parseInt(annualYearSelect.value, 10);
-      const targetLimit = parseInt(annualTargetSelect.value, 10);
-      annualYearLabel.textContent = selectedYear;
-
-      let annualTotal = 0;
-
-      for (let m = 1; m <= 12; m++) {
-        const mKey = `${selectedYear}-${String(m).padStart(2, '0')}`;
-        if (monthlyActualPaid[mKey] !== undefined) {
-          annualTotal += monthlyActualPaid[mKey];
-        } else {
-          // 振込確定額が未入力の月はシフト試算値で集計
-          const monthShifts = shifts.filter(s => {
-            const [y, monthStr] = s.date.split('-');
-            return parseInt(y, 10) === selectedYear && parseInt(monthStr, 10) === m;
-          });
-
-          monthShifts.forEach(shift => {
-            const wp = workplaces.find(w => w.id === shift.workplaceId) || {
-              hourly: 1100, nightHourly: 1375, transport: 0, breakThreshold: 6, breakMinutes: 45, overtimeRate: 1.25, holidayTarget: 'sun', holidayRate: 1.35
-            };
-            annualTotal += calculateSingleShiftSalary(shift, wp);
-          });
-        }
-      }
-
-      annualTotalVal.textContent = `￥${annualTotal.toLocaleString()}`;
-
-      const pct = Math.min(100, Math.round((annualTotal / targetLimit) * 100));
-      annualProgressFill.style.width = `${pct}%`;
-      annualProgressText.textContent = `${pct}%`;
-
-      const diff = targetLimit - annualTotal;
-      if (diff <= 0) {
-        annualRemainText.textContent = `⚠️ 上限（￥${targetLimit.toLocaleString()}）に達しました！`;
-        annualRemainText.style.color = '#ef4444';
-      } else {
-        annualRemainText.textContent = `残り ￥${diff.toLocaleString()} 稼げます`;
-        annualRemainText.style.color = '#10b981';
-      }
-    }
-
-    function renderWorkplaceModalList() {
-      workplaceListContainer.innerHTML = '';
-      workplaces.forEach((wp) => {
-        if (wp.nightHourly === undefined) wp.nightHourly = Math.round(wp.hourly * 1.25);
-        if (wp.closingDay === undefined) wp.closingDay = 0;
-        if (wp.overtimeRate === undefined) wp.overtimeRate = 1.25;
-        if (wp.holidayTarget === undefined) wp.holidayTarget = 'sun';
-        if (wp.holidayRate === undefined) wp.holidayRate = 1.35;
-
-        const item = document.createElement('div');
-        item.className = 'workplace-item';
-        item.innerHTML = `
-          <div class="workplace-item-header">
-            <input type="color" value="${wp.color}" onchange="window.updateWorkplaceField('${wp.id}', 'color', this.value)">
-            <input type="text" value="${wp.name}" style="font-weight:bold; flex:1;" onchange="window.updateWorkplaceField('${wp.id}', 'name', this.value)" placeholder="バイト先名">
-            <button onclick="window.removeWorkplace('${wp.id}')" style="background:#ef4444; padding:3px 7px;">削除</button>
-          </div>
-          <div class="workplace-item-fields">
-            <label>通常時給:</label>
-            <input type="number" value="${wp.hourly}" style="width:55px;" onchange="window.updateHourlyAndNightDefault('${wp.id}', parseInt(this.value)||0)"> 円
-            <label style="margin-left:6px;">深夜時給(22時~):</label>
-            <input type="number" value="${wp.nightHourly}" style="width:55px;" onchange="window.updateWorkplaceField('${wp.id}', 'nightHourly', parseInt(this.value)||0)"> 円
-          </div>
-          <div class="workplace-item-fields">
-            <label>締め日:</label>
-            <select onchange="window.updateWorkplaceField('${wp.id}', 'closingDay', parseInt(this.value)||0)">
-              <option value="0" ${wp.closingDay === 0 ? 'selected' : ''}>月末締め</option>
-              <option value="5" ${wp.closingDay === 5 ? 'selected' : ''}>5日締め</option>
-              <option value="10" ${wp.closingDay === 10 ? 'selected' : ''}>10日締め</option>
-              <option value="15" ${wp.closingDay === 15 ? 'selected' : ''}>15日締め</option>
-              <option value="20" ${wp.closingDay === 20 ? 'selected' : ''}>20日締め</option>
-              <option value="25" ${wp.closingDay === 25 ? 'selected' : ''}>25日締め</option>
-            </select>
-            <label style="margin-left:6px;">交通費:</label>
-            <input type="number" value="${wp.transport}" style="width:55px;" onchange="window.updateWorkplaceField('${wp.id}', 'transport', parseInt(this.value)||0)"> 円
-          </div>
-          <div class="workplace-item-fields">
-            <label>8h超残業倍率:</label>
-            <input type="number" step="0.05" value="${wp.overtimeRate}" style="width:48px;" onchange="window.updateWorkplaceField('${wp.id}', 'overtimeRate', parseFloat(this.value)||1.0)"> 倍
-          </div>
-          <div class="workplace-item-fields">
-            <label>休日手当対象:</label>
-            <select onchange="window.updateWorkplaceField('${wp.id}', 'holidayTarget', this.value)">
-              <option value="none" ${wp.holidayTarget === 'none' ? 'selected' : ''}>なし (適用しない)</option>
-              <option value="sun" ${wp.holidayTarget === 'sun' ? 'selected' : ''}>日曜日のみ</option>
-              <option value="sat_sun" ${wp.holidayTarget === 'sat_sun' ? 'selected' : ''}>土曜日・日曜日</option>
-            </select>
-            <label style="margin-left:4px;">倍率:</label>
-            <input type="number" step="0.05" value="${wp.holidayRate}" style="width:48px;" onchange="window.updateWorkplaceField('${wp.id}', 'holidayRate', parseFloat(this.value)||1.0)"> 倍
-          </div>
-          <div class="workplace-item-fields">
-            <label>休憩:</label>
-            <input type="number" value="${wp.breakThreshold}" step="0.5" style="width:40px;" onchange="window.updateWorkplaceField('${wp.id}', 'breakThreshold', parseFloat(this.value)||0)">h以上で
-            <input type="number" value="${wp.breakMinutes}" step="5" style="width:40px;" onchange="window.updateWorkplaceField('${wp.id}', 'breakMinutes', parseInt(this.value)||0)">分引く
-          </div>
-        `;
-        workplaceListContainer.appendChild(item);
       });
     }
 
-    window.updateHourlyAndNightDefault = function(id, newHourly) {
-      const wp = workplaces.find(w => w.id === id);
-      if (wp) {
-        wp.hourly = newHourly;
-        wp.nightHourly = Math.round(newHourly * 1.25);
-        saveWorkplaces();
-        renderWorkplaceModalList();
-        renderWorkplaceOptions();
-        updateCalendar(false);
-      }
-    };
-
-    window.updateWorkplaceField = function(id, field, value) {
-      const wp = workplaces.find(w => w.id === id);
-      if (wp) {
-        wp[field] = value;
-        saveWorkplaces();
-        renderWorkplaceOptions();
-        updateCalendar(false);
-      }
-    };
-
-    function addNewWorkplace() {
-      const newId = 'wp_' + Date.now();
-      const newWp = {
-        id: newId,
-        name: `新しいバイト先 ${workplaces.length + 1}`,
-        hourly: 1100,
-        nightHourly: 1375,
-        transport: 500,
-        color: '#8b5cf6',
-        breakThreshold: 6,
-        breakMinutes: 45,
-        closingDay: 0,
-        overtimeRate: 1.25,
-        holidayTarget: 'sun',
-        holidayRate: 1.35
-      };
-      workplaces.push(newWp);
-      saveWorkplaces();
-      renderWorkplaceModalList();
-      renderWorkplaceOptions();
-      updateCalendar(false);
+    function renderAll() {
+      populateWorkplaceSelect();
+      populateShiftDateOptions();
+      populateAnnualYearSelect();
+      renderCalendar();
+      renderList();
+      updateSummary();
+      renderWorkplaceList();
+      updateNotificationStatus();
+      updateAuthStatus();
+      setTodayBadge();
     }
 
-    window.removeWorkplace = function(id) {
-      if (workplaces.length <= 1) {
-        alert('最低1つのバイト先が必要です。');
-        return;
+    function applyTheme() {
+      const theme = state.theme || "light";
+      document.documentElement.setAttribute("data-theme", theme);
+      const btnText = document.getElementById("theme-toggle-btn");
+      if (btnText) {
+        btnText.textContent = theme === "dark" ? "☀️ ライト" : "🌙 ダーク";
       }
-      if (confirm('このバイト先を削除しますか？')) {
-        workplaces = workplaces.filter(w => w.id !== id);
-        saveWorkplaces();
-        renderWorkplaceModalList();
-        renderWorkplaceOptions();
-        updateCalendar(false);
-      }
-    };
-
-    function saveWorkplaces() {
-      localStorage.setItem('shift_app_workplaces', JSON.stringify(workplaces));
-      saveAllDataToCloud();
+      saveState();
     }
 
-    function executeBatchAdd() {
-      const wpId = batchWorkplaceSelect.value;
-      const start = batchStartInput.value;
-      const end = batchEndInput.value;
-      const memo = batchMemoInput.value;
-
-      const checkedWeekdays = Array.from(document.querySelectorAll('.batch-weekday:checked')).map(cb => parseInt(cb.value));
-
-      if (checkedWeekdays.length === 0) {
-        alert('少なくとも1つの曜日を選択してください。');
-        return;
-      }
-
-      if (start >= end) {
-        alert('終了時間は開始時間より後の時間に設定してください。');
-        return;
-      }
-
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const wp = workplaces.find(w => w.id === wpId);
-
-      let addedCount = 0;
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateObj = new Date(year, month, d);
-        if (checkedWeekdays.includes(dateObj.getDay())) {
-          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-          
-          shifts.push({
-            id: (Date.now() + Math.random()).toString(),
-            workplaceId: wpId,
-            date: dateStr,
-            start: start,
-            end: end,
-            memo: memo,
-            color: wp ? wp.color : '#3b82f6'
-          });
-          addedCount++;
-        }
-      }
-
-      saveShifts();
-      updateCalendar(false);
-      batchModal.style.display = 'none';
-      alert(`${addedCount}件のシフトを一括追加しました！`);
-    }
-
-    function setViewMode(mode) {
-      currentViewMode = mode;
-      if (mode === 'calendar') {
-        viewCalendarBtn.classList.add('active');
-        viewListBtn.classList.remove('active');
-        calendarContainer.style.display = 'block';
-        listContainer.style.display = 'none';
-      } else {
-        viewListBtn.classList.add('active');
-        viewCalendarBtn.classList.remove('active');
-        calendarContainer.style.display = 'none';
-        listContainer.style.display = 'block';
-      }
-    }
-
-    function displayTodayBadge() {
-      const now = new Date();
-      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
-      const y = now.getFullYear();
-      const m = now.getMonth() + 1;
-      const d = now.getDate();
-      const w = weekDays[now.getDay()];
-      todayBadge.textContent = `📅 今日: ${y}年${m}月${d}日(${w})`;
-    }
-
-    function changeMonth(diff) {
-      currentDate.setMonth(currentDate.getMonth() + diff);
-      updateCalendar(false);
-    }
-
-    function updateCalendar(scrollToToday = false) {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-
-      yearSelect.value = year;
-      monthSelect.value = month + 1;
-
-      // 月別の振込確定額入力欄の初期値を設定
-      const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-      monthlyActualPaidInput.value = monthlyActualPaid[monthKey] !== undefined ? monthlyActualPaid[monthKey] : '';
-
-      populateShiftDateSelect(year, month);
-      renderCalendar(year, month);
-      renderList(year, month);
-      calculateSalary();
-
-      if (scrollToToday && currentViewMode === 'calendar') {
-        setTimeout(scrollToTodayRow, 50);
-      }
-    }
-
-    function scrollToTodayRow() {
-      const todayCell = calendarGrid.querySelector('.day-cell.is-today');
-      if (todayCell) {
-        const cellTop = todayCell.offsetTop;
-        const headerHeight = 42;
-        calendarContainer.scrollTop = Math.max(0, cellTop - headerHeight);
-      }
-    }
-
-    function populateShiftDateSelect(year, month) {
-      shiftDateSelect.innerHTML = '';
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateObj = new Date(year, month, d);
-        const dayStr = String(d).padStart(2, '0');
-        const monthStr = String(month + 1).padStart(2, '0');
-        const dateKey = `${year}-${monthStr}-${dayStr}`;
-        const dayOfWeek = weekDays[dateObj.getDay()];
-
-        const option = document.createElement('option');
-        option.value = dateKey;
-        option.textContent = `${month + 1}/${d} (${dayOfWeek})`;
-        shiftDateSelect.appendChild(option);
-      }
-    }
-
-    function renderCalendar(year, month) {
-      calendarGrid.innerHTML = '';
-
+    function setTodayBadge() {
       const today = new Date();
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
-
-      const firstDay = new Date(year, month, 1);
-      const startDayOfWeek = firstDay.getDay();
-      const lastDate = new Date(year, month + 1, 0).getDate();
-      const prevMonthLastDate = new Date(year, month, 0).getDate();
-
-      const cells = [];
-
-      for (let i = startDayOfWeek - 1; i >= 0; i--) {
-        const prevDay = prevMonthLastDate - i;
-        const prevMonthDate = new Date(year, month - 1, prevDay);
-        cells.push({ date: prevMonthDate, isCurrentMonth: false });
-      }
-
-      for (let d = 1; d <= lastDate; d++) {
-        cells.push({ date: new Date(year, month, d), isCurrentMonth: true });
-      }
-
-      let nextDay = 1;
-      while (cells.length % 7 !== 0) {
-        cells.push({ date: new Date(year, month + 1, nextDay), isCurrentMonth: false });
-        nextDay++;
-      }
-
-      const totalWeeks = cells.length / 7;
-
-      for (let week = 0; week < totalWeeks; week++) {
-        const cornerHeader = document.createElement('div');
-        cornerHeader.className = 'sticky-corner';
-        cornerHeader.textContent = '時間';
-        calendarGrid.appendChild(cornerHeader);
-
-        for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
-          const cellData = cells[week * 7 + dayIdx];
-          const cellDate = cellData.date;
-          
-          const y = cellDate.getFullYear();
-          const m = String(cellDate.getMonth() + 1).padStart(2, '0');
-          const d = String(cellDate.getDate()).padStart(2, '0');
-          const dateStr = `${y}-${m}-${d}`;
-          const isToday = (dateStr === todayStr);
-
-          const header = document.createElement('div');
-          header.className = `calendar-header ${dayIdx === 0 ? 'day-sun' : dayIdx === 6 ? 'day-sat' : ''} ${isToday ? 'is-today' : ''}`;
-          
-          header.innerHTML = `
-            <div>${weekDays[dayIdx]}</div>
-            <div class="header-date">${cellDate.getMonth() + 1}/${cellDate.getDate()}${isToday ? ' <span style="font-size:9px;font-weight:bold;">[今日]</span>' : ''}</div>
-          `;
-          calendarGrid.appendChild(header);
-        }
-
-        const timeCol = document.createElement('div');
-        timeCol.className = 'time-column';
-
-        for (let h = START_HOUR; h <= END_HOUR; h++) {
-          const slot = document.createElement('div');
-          slot.className = 'time-slot';
-          slot.textContent = `${h}:00`;
-          timeCol.appendChild(slot);
-        }
-        calendarGrid.appendChild(timeCol);
-
-        for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
-          const cellData = cells[week * 7 + dayIdx];
-          const cellDate = cellData.date;
-          
-          const y = cellDate.getFullYear();
-          const m = String(cellDate.getMonth() + 1).padStart(2, '0');
-          const d = String(cellDate.getDate()).padStart(2, '0');
-          const dateStr = `${y}-${m}-${d}`;
-
-          const dayCell = document.createElement('div');
-          const dayShifts = shifts.filter(s => s.date === dateStr);
-          const hasShift = cellData.isCurrentMonth && dayShifts.length > 0;
-          const isToday = (dateStr === todayStr);
-
-          dayCell.className = `day-cell ${!cellData.isCurrentMonth ? 'other-month' : (hasShift ? 'has-shift' : 'no-shift')} ${isToday ? 'is-today' : ''}`;
-
-          const timelineWrapper = document.createElement('div');
-          timelineWrapper.className = 'timeline-wrapper';
-
-          for (let h = START_HOUR; h <= END_HOUR; h++) {
-            const line = document.createElement('div');
-            line.className = 'hour-line';
-            timelineWrapper.appendChild(line);
-          }
-
-          if (cellData.isCurrentMonth) {
-            dayShifts.forEach(shift => {
-              const card = createShiftCard(shift);
-              if (card) timelineWrapper.appendChild(card);
-            });
-          }
-
-          dayCell.appendChild(timelineWrapper);
-          calendarGrid.appendChild(dayCell);
-        }
-      }
+      const y = today.getFullYear();
+      const m = today.getMonth() + 1;
+      const d = today.getDate();
+      document.getElementById("today-badge").textContent = `📅 今日: ${y}/${m}/${d}`;
     }
 
-    /* リスト表示描画 */
-    function renderList(year, month) {
-      listTableBody.innerHTML = '';
-      listTitle.textContent = `${year}年${month + 1}月 シフト一覧`;
-
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
-      const today = new Date();
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateObj = new Date(year, month, d);
-        const dayOfWeekIdx = dateObj.getDay();
-        const dayOfWeek = weekDays[dayOfWeekIdx];
-
-        const monthStr = String(month + 1).padStart(2, '0');
-        const dayStr = String(d).padStart(2, '0');
-        const dateKey = `${year}-${monthStr}-${dayStr}`;
-
-        const dayShifts = shifts.filter(s => s.date === dateKey).sort((a,b) => a.start.localeCompare(b.start));
-
-        const tr = document.createElement('tr');
-        if (dateKey === todayStr) tr.className = 'is-today';
-
-        const tdDate = document.createElement('td');
-        tdDate.className = `col-date ${dayOfWeekIdx === 0 ? 'day-sun' : dayOfWeekIdx === 6 ? 'day-sat' : ''}`;
-        tdDate.textContent = `${month + 1}/${d}(${dayOfWeek})`;
-
-        const tdContent = document.createElement('td');
-
-        if (dayShifts.length > 0) {
-          const container = document.createElement('div');
-          container.className = 'multi-shift-container';
-
-          dayShifts.forEach(shift => {
-            const wp = workplaces.find(w => w.id === shift.workplaceId);
-            const item = document.createElement('div');
-            item.className = 'multi-shift-item';
-
-            const formatTime = (timeStr) => {
-              const [h, m] = timeStr.split(':');
-              return m === '00' ? parseInt(h, 10).toString() : `${parseInt(h, 10)}:${m}`;
-            };
-
-            item.innerHTML = `
-              <div class="col-workplace" style="color: ${wp ? wp.color : 'inherit'}">${wp ? wp.name : 'バイト'}</div>
-              <div class="col-time">${formatTime(shift.start)}〜${formatTime(shift.end)}</div>
-              <div class="col-memo">${shift.memo || ''}</div>
-              <div class="col-actions">
-                <button class="btn-xs btn-edit" onclick="window.openEditShiftModal('${shift.id}')">編集</button>
-              </div>
-            `;
-            container.appendChild(item);
-          });
-
-          tdContent.appendChild(container);
-        } else {
-          tr.classList.add('is-off');
-          tdContent.innerHTML = `<span style="color: var(--text-muted)">ー</span>`;
-        }
-
-        tr.appendChild(tdDate);
-        tr.appendChild(tdContent);
-        listTableBody.appendChild(tr);
-      }
+    function openModal(id) {
+      document.getElementById(id).style.display = "flex";
     }
 
-    function copyListText() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
-      
-      let textLines = [];
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
 
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateObj = new Date(year, month, d);
-        const dayOfWeek = weekDays[dateObj.getDay()];
-        const monthStr = String(month + 1).padStart(2, '0');
-        const dayStr = String(d).padStart(2, '0');
-        const dateKey = `${year}-${monthStr}-${dayStr}`;
+    function showCalendarView() {
+      document.getElementById("calendar-container").style.display = "block";
+      document.getElementById("list-container").style.display = "none";
+      document.getElementById("view-calendar-btn").classList.add("active");
+      document.getElementById("view-list-btn").classList.remove("active");
+    }
 
-        const dayShifts = shifts.filter(s => s.date === dateKey).sort((a,b) => a.start.localeCompare(b.start));
+    function showListView() {
+      document.getElementById("calendar-container").style.display = "none";
+      document.getElementById("list-container").style.display = "block";
+      document.getElementById("view-list-btn").classList.add("active");
+      document.getElementById("view-calendar-btn").classList.remove("active");
+    }
 
-        const formatTime = (timeStr) => {
-          const [h, m] = timeStr.split(':');
-          return m === '00' ? parseInt(h, 10).toString() : `${parseInt(h, 10)}:${m}`;
-        };
-
-        if (dayShifts.length > 0) {
-          const shiftTexts = dayShifts.map(s => {
-            const wp = workplaces.find(w => w.id === s.workplaceId);
-            const wpName = wp ? wp.name : '';
-            const memoStr = s.memo ? `(${s.memo})` : '';
-            return `${wpName} ${formatTime(s.start)}〜${formatTime(s.end)}${memoStr}`.trim();
-          });
-          textLines.push(`${month + 1}/${d}(${dayOfWeek})\t${shiftTexts.join(' / ')}`);
-        } else {
-          textLines.push(`${month + 1}/${d}(${dayOfWeek})\tOFF`);
+    function populateAnnualYearSelect() {
+      const select = document.getElementById("annual-year-select");
+      const currentYear = new Date().getFullYear();
+      if (!select.dataset.initialized) {
+        for (let y = currentYear - 2; y <= currentYear + 2; y++) {
+          const option = document.createElement("option");
+          option.value = String(y);
+          option.textContent = `${y}年`;
+          select.appendChild(option);
         }
+        select.dataset.initialized = "true";
       }
+      select.value = String(currentYear);
+    }
 
-      const fullText = textLines.join('\n');
-      navigator.clipboard.writeText(fullText).then(() => {
-        alert('シフト一覧をテキストコピーしました！');
-      }).catch(() => {
-        alert('コピーに失敗しました。');
+    function populateWorkplaceSelect() {
+      const workplaceSelect = document.getElementById("shift-workplace-select");
+      workplaceSelect.innerHTML = "";
+
+      state.workplaces.forEach((wp) => {
+        const option = document.createElement("option");
+        option.value = wp.id;
+        option.textContent = wp.name;
+        workplaceSelect.appendChild(option);
       });
+
+      if (!state.workplaces.length) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "先を追加してください";
+        workplaceSelect.appendChild(option);
+      }
+
+      const selected = workplaceSelect.value || state.workplaces[0]?.id || "";
+      if (selected) workplaceSelect.value = selected;
+
+      const currentColor = state.workplaces.find((wp) => wp.id === selected)?.color || "#3b82f6";
+      const colorInput = document.getElementById("shift-color");
+      if (colorInput && currentColor) colorInput.value = currentColor;
     }
 
-    function createShiftCard(shift) {
-      const [sHour, sMin] = shift.start.split(':').map(Number);
-      const [eHour, eMin] = shift.end.split(':').map(Number);
+    function populateShiftDateOptions() {
+      const select = document.getElementById("shift-date-select");
+      const year = Number(document.getElementById("year-select").value);
+      const month = Number(document.getElementById("month-select").value);
+      const firstDay = new Date(year, month - 1, 1);
+      const lastDay = new Date(year, month, 0);
 
-      const startDecimal = sHour + sMin / 60;
-      const endDecimal = eHour + eMin / 60;
-
-      if (endDecimal <= START_HOUR || startDecimal >= END_HOUR + 1) return null;
-
-      const clampedStart = Math.max(startDecimal, START_HOUR);
-      const clampedEnd = Math.min(endDecimal, END_HOUR + 1);
-
-      const topPx = (clampedStart - START_HOUR) * HOUR_HEIGHT;
-      const heightPx = (clampedEnd - clampedStart) * HOUR_HEIGHT;
-
-      const wp = workplaces.find(w => w.id === shift.workplaceId);
-
-      const card = document.createElement('div');
-      card.className = 'shift-card';
-      card.style.top = `${topPx}px`;
-      card.style.height = `${Math.max(heightPx, 20)}px`;
-      card.style.backgroundColor = shift.color || (wp ? wp.color : '#3b82f6');
-
-      card.onclick = (e) => {
-        e.stopPropagation();
-        window.openEditShiftModal(shift.id);
-      };
-
-      const header = document.createElement('div');
-      header.className = 'shift-header';
-
-      const titleText = document.createElement('span');
-      titleText.className = 'shift-title';
-      titleText.textContent = wp ? wp.name : 'シフト';
-
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'shift-delete-btn';
-      deleteBtn.innerHTML = '&times;';
-      deleteBtn.onclick = (e) => {
-        e.stopPropagation();
-        deleteShift(shift.id);
-      };
-
-      header.appendChild(titleText);
-      header.appendChild(deleteBtn);
-      card.appendChild(header);
-
-      if (heightPx > 26) {
-        const timeText = document.createElement('div');
-        timeText.className = 'shift-time';
-        timeText.textContent = `${shift.start}~${shift.end}`;
-        card.appendChild(timeText);
+      select.innerHTML = "";
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const date = new Date(year, month - 1, d);
+        const dateString = formatDateKey(date);
+        const option = document.createElement("option");
+        option.value = dateString;
+        option.textContent = `${date.getMonth() + 1}/${d} (${weekdayNames[date.getDay()]})`;
+        select.appendChild(option);
       }
 
-      if (shift.memo && heightPx > 38) {
-        const memoText = document.createElement('div');
-        memoText.className = 'shift-memo';
-        memoText.textContent = shift.memo;
-        card.appendChild(memoText);
+      const currentValue = select.value || formatDateKey(new Date(year, month - 1, 1));
+      select.value = currentValue;
+    }
+
+    function addWorkplace() {
+      const name = document.getElementById("workplace-name-input").value.trim();
+      const rate = Number(document.getElementById("workplace-rate-input").value || 0);
+      const color = document.getElementById("workplace-color-input").value;
+
+      if (!name || !rate) {
+        alert("店名と時給を入力してください");
+        return;
       }
 
-      return card;
+      const id = `wp-${Date.now()}`;
+      state.workplaces.push({ id, name, hourlyRate: rate, color });
+      saveState();
+      document.getElementById("workplace-name-input").value = "";
+      document.getElementById("workplace-rate-input").value = "1100";
+      renderAll();
+      closeModal("workplace-modal");
     }
 
     function addShift() {
-      const workplaceId = shiftWorkplaceSelect.value;
-      const date = shiftDateSelect.value;
-      const start = shiftStartInput.value;
-      const end = shiftEndInput.value;
-      const memo = shiftMemoInput.value;
-      const color = shiftColorInput.value;
+      const workplaceId = document.getElementById("shift-workplace-select").value;
+      const date = document.getElementById("shift-date-select").value;
+      const color = document.getElementById("shift-color").value;
+      const start = document.getElementById("shift-start").value;
+      const end = document.getElementById("shift-end").value;
+      const memo = document.getElementById("shift-memo").value.trim();
 
       if (!workplaceId || !date || !start || !end) {
-        alert('すべての項目を入力してください。');
+        alert("バイト先・日付・開始時刻・終了時刻は必須です");
         return;
       }
 
-      if (start >= end) {
-        alert('終了時間は開始時間より後の時間に設定してください。');
-        return;
-      }
+      const startMinutes = parseMinutes(start);
+      const endMinutes = parseMinutes(end);
 
-      shifts.push({
-        id: Date.now().toString(),
-        workplaceId, date, start, end, memo, color
-      });
-      saveShifts();
-      updateCalendar(false);
-
-      shiftMemoInput.value = '';
-    }
-
-    window.openEditShiftModal = function(id) {
-      const shift = shifts.find(s => s.id === id);
-      if (!shift) return;
-
-      editShiftIdInput.value = shift.id;
-      editShiftWorkplaceSelect.value = shift.workplaceId;
-      editShiftDateInput.value = shift.date;
-      editShiftColorInput.value = shift.color || '#3b82f6';
-      editShiftStartInput.value = shift.start;
-      editShiftEndInput.value = shift.end;
-      editShiftMemoInput.value = shift.memo || '';
-
-      editShiftModal.style.display = 'flex';
-    };
-
-    function copyShiftDuplicate() {
-      const workplaceId = editShiftWorkplaceSelect.value;
-      const targetDate = editShiftDateInput.value;
-      const start = editShiftStartInput.value;
-      const end = editShiftEndInput.value;
-      const memo = editShiftMemoInput.value;
-      const color = editShiftColorInput.value;
-
-      if (!targetDate || !start || !end) {
-        alert('日付と時間を指定してください。');
-        return;
-      }
-
-      if (start >= end) {
-        alert('終了時間は開始時間より後の時間に設定してください。');
+      if (endMinutes <= startMinutes) {
+        alert("終了時間は開始時間より後にしてください");
         return;
       }
 
       const newShift = {
-        id: (Date.now() + Math.random()).toString(),
+        id: `s-${Date.now()}`,
         workplaceId,
-        date: targetDate,
+        date,
         start,
         end,
         memo,
         color
       };
 
-      shifts.push(newShift);
-      saveShifts();
-      updateCalendar(false);
-      editShiftModal.style.display = 'none';
-      alert(`${targetDate} にシフトを複製追加しました！`);
+      state.shifts.push(newShift);
+      saveState();
+      document.getElementById("shift-memo").value = "";
+      renderAll();
     }
 
-    function saveShiftEdit() {
-      const id = editShiftIdInput.value;
-      const shift = shifts.find(s => s.id === id);
-
-      if (!shift) return;
-
-      const start = editShiftStartInput.value;
-      const end = editShiftEndInput.value;
-
-      if (start >= end) {
-        alert('終了時間は開始時間より後の時間に設定してください。');
+    function applyBatchImport() {
+      const text = document.getElementById("batch-textarea").value.trim();
+      if (!text) {
+        alert("登録する行を入力してください");
         return;
       }
 
-      shift.workplaceId = editShiftWorkplaceSelect.value;
-      shift.date = editShiftDateInput.value;
-      shift.color = editShiftColorInput.value;
-      shift.start = start;
-      shift.end = end;
-      shift.memo = editShiftMemoInput.value;
+      const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
 
-      saveShifts();
-      updateCalendar(false);
-      editShiftModal.style.display = 'none';
-    }
+      let inserted = 0;
+      for (const line of lines) {
+        const [date, workplaceName, start, end, memo = ""] = line.split(",").map(item => item.trim());
 
-    function deleteShift(id) {
-      if (confirm('このシフトを削除しますか？')) {
-        shifts = shifts.filter(s => s.id !== id);
-        saveShifts();
-        updateCalendar(false);
-      }
-    }
+        if (!date || !workplaceName || !start || !end) continue;
 
-    function saveShifts() {
-      localStorage.setItem('shift_app_shifts', JSON.stringify(shifts));
-      saveAllDataToCloud();
-    }
-
-    function getWorkingPeriod(year, month, closingDay) {
-      if (closingDay === 0) {
-        const startDate = new Date(year, month, 1);
-        const endDate = new Date(year, month + 1, 0);
-        return { startDate, endDate, label: `${year}年${month + 1}月 (1日〜月末)` };
-      } else {
-        const startDate = new Date(year, month - 1, closingDay + 1);
-        const endDate = new Date(year, month, closingDay);
-        return {
-          startDate, endDate,
-          label: `${year}年${month + 1}月期 (${month}/${closingDay + 1}〜${month + 1}/${closingDay})`
-        };
-      }
-    }
-
-    function calculateSingleShiftSalary(shift, wp) {
-      const baseHourly = wp.hourly;
-      const nightHourly = wp.nightHourly !== undefined ? wp.nightHourly : Math.round(baseHourly * 1.25);
-      const overtimeRate = wp.overtimeRate || 1.25;
-
-      const [sYear, sMonth, sDay] = shift.date.split('-').map(Number);
-      const shiftDate = new Date(sYear, sMonth - 1, sDay);
-
-      const dayOfWeek = shiftDate.getDay();
-      let isHoliday = false;
-      if (wp.holidayTarget === 'sun' && dayOfWeek === 0) {
-        isHoliday = true;
-      } else if (wp.holidayTarget === 'sat_sun' && (dayOfWeek === 0 || dayOfWeek === 6)) {
-        isHoliday = true;
-      }
-
-      const appliedHolidayRate = isHoliday ? (wp.holidayRate || 1.00) : 1.00;
-
-      const [sHour, sMin] = shift.start.split(':').map(Number);
-      const [eHour, eMin] = shift.end.split(':').map(Number);
-
-      const startTotalMin = sHour * 60 + sMin;
-      const endTotalMin = eHour * 60 + eMin;
-
-      if (endTotalMin <= startTotalMin) return 0;
-
-      let grossMinutes = endTotalMin - startTotalMin;
-
-      let breakMins = 0;
-      if (wp.breakThreshold > 0 && (grossMinutes / 60) >= wp.breakThreshold) {
-        breakMins = wp.breakMinutes;
-        grossMinutes = Math.max(0, grossMinutes - breakMins);
-      }
-
-      const nightStartMin = 22 * 60;
-      const nightEndMin = 29 * 60;
-
-      let rawNightMinutes = Math.max(0, Math.min(endTotalMin, nightEndMin) - Math.max(startTotalMin, nightStartMin));
-      let nightMinutes = rawNightMinutes;
-      if (breakMins > 0 && rawNightMinutes > 0) {
-        const dayMinutes = grossMinutes + breakMins - rawNightMinutes;
-        if (breakMins > dayMinutes) {
-          nightMinutes = Math.max(0, rawNightMinutes - (breakMins - dayMinutes));
+        let workplace = state.workplaces.find((wp) => wp.name === workplaceName);
+        if (!workplace) {
+          const color = randomColor();
+          workplace = { id: `wp-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`, name: workplaceName, hourlyRate: 1100, color };
+          state.workplaces.push(workplace);
         }
+
+        state.shifts.push({
+          id: `s-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`,
+          workplaceId: workplace.id,
+          date,
+          start,
+          end,
+          memo,
+          color: workplace.color || randomColor()
+        });
+
+        inserted++;
       }
 
-      const dayMinutes = Math.max(0, grossMinutes - nightMinutes);
-
-      let regularDayMins = dayMinutes;
-      let overtimeDayMins = 0;
-
-      if (grossMinutes > 480) {
-        const overtimeMins = grossMinutes - 480;
-        regularDayMins = Math.max(0, dayMinutes - overtimeMins);
-        overtimeDayMins = Math.min(dayMinutes, overtimeMins);
-      }
-
-      const regularDaySalary = (regularDayMins / 60) * baseHourly * appliedHolidayRate;
-      const overtimeDaySalary = (overtimeDayMins / 60) * baseHourly * overtimeRate * appliedHolidayRate;
-      const nightSalary = (nightMinutes / 60) * nightHourly * appliedHolidayRate;
-
-      return Math.round(regularDaySalary + overtimeDaySalary + nightSalary);
+      saveState();
+      renderAll();
+      closeModal("batch-modal");
+      document.getElementById("batch-textarea").value = "";
+      alert(`${inserted}件を一括登録しました`);
     }
 
-    function calculateSalary() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
+    function renderCalendar() {
+      const year = Number(document.getElementById("year-select").value);
+      const month = Number(document.getElementById("month-select").value);
+      const grid = document.getElementById("calendar-grid");
+      grid.innerHTML = "";
 
+      const timeColumnHeader = document.createElement("div");
+      timeColumnHeader.className = "sticky-corner";
+      timeColumnHeader.textContent = "時刻";
+      grid.appendChild(timeColumnHeader);
+
+      const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+      weekdays.forEach((day) => {
+        const header = document.createElement("div");
+        header.className = "calendar-header";
+        if (day === "日") header.classList.add("day-sun");
+        if (day === "土") header.classList.add("day-sat");
+        header.innerHTML = `
+          <div>${day}</div>
+          <div class="header-date">${monthNames[month - 1]}</div>
+        `;
+        grid.appendChild(header);
+      });
+
+      const firstOfMonth = new Date(year, month - 1, 1);
+      const lastOfMonth = new Date(year, month, 0);
+      const startOffset = firstOfMonth.getDay();
+      const totalDays = lastOfMonth.getDate();
+
+      const timeColumn = document.createElement("div");
+      timeColumn.className = "time-column";
+      for (let i = 0; i < 16; i++) {
+        const slot = document.createElement("div");
+        slot.className = "time-slot";
+        const hour = i + 6;
+        slot.textContent = `${String(hour).padStart(2, "0")}:00`;
+        timeColumn.appendChild(slot);
+      }
+      grid.appendChild(timeColumn);
+
+      const minuteSlots = [];
+      for (let h = 6; h <= 21; h++) {
+        minuteSlots.push(`${String(h).padStart(2, "0")}:00`);
+      }
+
+      const daysInGrid = [];
+      for (let i = 0; i < startOffset; i++) {
+        daysInGrid.push(null);
+      }
+      for (let d = 1; d <= totalDays; d++) {
+        daysInGrid.push(d);
+      }
+
+      while (daysInGrid.length % 7 !== 0) {
+        daysInGrid.push(null);
+      }
+
+      for (let index = 0; index < daysInGrid.length; index++) {
+        const dayNumber = daysInGrid[index];
+        if (dayNumber === null) {
+          const emptyCell = document.createElement("div");
+          emptyCell.className = "day-cell other-month";
+          emptyCell.style.minHeight = "120px";
+          grid.appendChild(emptyCell);
+          continue;
+        }
+
+        const cell = document.createElement("div");
+        const date = new Date(year, month - 1, dayNumber);
+        const dateKey = formatDateKey(date);
+        const shiftsForTheDay = state.shifts.filter((shift) => shift.date === dateKey);
+
+        cell.className = "day-cell";
+        if (shiftsForTheDay.length) cell.classList.add("has-shift");
+        else cell.classList.add("no-shift");
+
+        const isToday = isSameDate(date, new Date());
+        if (isToday) cell.classList.add("is-today");
+
+        const dayLabel = document.createElement("div");
+        dayLabel.className = "day-number";
+        dayLabel.textContent = String(dayNumber);
+        if (date.getDay() === 0) dayLabel.classList.add("day-sun");
+        if (date.getDay() === 6) dayLabel.classList.add("day-sat");
+        cell.appendChild(dayLabel);
+
+        shiftsForTheDay.forEach((shift) => {
+          const workplace = getWorkplace(shift.workplaceId);
+          const card = document.createElement("div");
+          card.className = "shift-card";
+          const color = shift.color || workplace?.color || "#3b82f6";
+          card.style.background = `linear-gradient(135deg, ${color}, ${shadeColor(color, -20)})`;
+
+          card.innerHTML = `
+            <div class="shift-header">
+              <span class="shift-title">${escapeHtml(workplace ? workplace.name : "不明")}</span>
+              <button class="shift-delete-btn" data-shift-id="${shift.id}" title="削除">×</button>
+            </div>
+            <div class="shift-time">${shift.start} - ${shift.end}</div>
+            <div class="shift-memo">${escapeHtml(shift.memo || "")}</div>
+          `;
+
+          cell.appendChild(card);
+        });
+
+        grid.appendChild(cell);
+      }
+    }
+
+    function renderList() {
+      const year = Number(document.getElementById("year-select").value);
+      const month = Number(document.getElementById("month-select").value);
+      const tbody = document.getElementById("list-table-body");
+      tbody.innerHTML = "";
+
+      const monthShifts = state.shifts
+        .filter((shift) => {
+          const date = new Date(`${shift.date}T00:00:00`);
+          return date.getFullYear() === year && date.getMonth() + 1 === month;
+        })
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      if (!monthShifts.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td style="padding: 16px; color: var(--text-sub);">この月のシフトはありません</td>
+          </tr>
+        `;
+        return;
+      }
+
+      const byDate = {};
+      monthShifts.forEach((shift) => {
+        if (!byDate[shift.date]) byDate[shift.date] = [];
+        byDate[shift.date].push(shift);
+      });
+
+      const dates = Object.keys(byDate).sort();
+
+      dates.forEach((dateStr) => {
+        const row = document.createElement("tr");
+        const date = new Date(`${dateStr}T00:00:00`);
+        row.className = "is-today";
+        if (date.getDay() === 0) row.classList.add("day-sun");
+        if (date.getDay() === 6) row.classList.add("day-sat");
+
+        const shiftList = byDate[dateStr];
+        row.innerHTML = `
+          <td class="col-date ${date.getDay() === 0 ? "day-sun" : date.getDay() === 6 ? "day-sat" : ""}">
+            ${date.getMonth() + 1}/${date.getDate()} (${weekdayNames[date.getDay()]})
+          </td>
+          <td>
+            <div class="multi-shift-container">
+              ${shiftList.map((shift) => {
+                const workplace = getWorkplace(shift.workplaceId);
+                const color = shift.color || workplace?.color || "#3b82f6";
+                return `
+                  <div class="multi-shift-item">
+                    <span class="col-workplace" style="color:${color};">${escapeHtml(workplace ? workplace.name : "不明")}</span>
+                    <span class="col-time">${shift.start} - ${shift.end}</span>
+                    <span class="col-memo">${escapeHtml(shift.memo || "メモなし")}</span>
+                    <span class="col-actions">
+                      <button class="btn-xs btn-danger delete-shift-btn" data-shift-id="${shift.id}">削除</button>
+                    </span>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateSummary() {
+      const targetSalary = Number(document.getElementById("target-salary-input").value || 0);
+      const actualPaid = Number(document.getElementById("monthly-actual-paid-input").value || 0);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      let confirmedMinutes = 0;
-      let estimatedMinutes = 0;
+      let confirmedHours = 0;
+      let estimatedHours = 0;
+      let confirmedAmount = 0;
+      let estimatedAmount = 0;
 
-      let confirmedSalaryVal = 0;
-      let estimatedSalaryVal = 0;
+      state.shifts.forEach((shift) => {
+        const shiftDate = new Date(`${shift.date}T00:00:00`);
+        const workplace = getWorkplace(shift.workplaceId);
+        const hours = (parseMinutes(shift.end) - parseMinutes(shift.start)) / 60;
+        const pay = hours * (workplace?.hourlyRate || 0);
 
-      const confirmedDaysByWp = {};
-      const estimatedDaysByWp = {};
-      const allPeriodDays = new Set();
-
-      const primaryWp = workplaces[0] || { closingDay: 0 };
-      const mainPeriod = getWorkingPeriod(year, month, primaryWp.closingDay || 0);
-      rateMonthDisplay.textContent = mainPeriod.label;
-
-      shifts.forEach(shift => {
-        const wp = workplaces.find(w => w.id === shift.workplaceId) || {
-          hourly: 1100, nightHourly: 1375, transport: 0, breakThreshold: 6, breakMinutes: 45, closingDay: 0, overtimeRate: 1.25, holidayTarget: 'sun', holidayRate: 1.35
-        };
-
-        const closingDay = wp.closingDay || 0;
-        const period = getWorkingPeriod(year, month, closingDay);
-
-        const [sYear, sMonth, sDay] = shift.date.split('-').map(Number);
-        const shiftDate = new Date(sYear, sMonth - 1, sDay);
-        shiftDate.setHours(0, 0, 0, 0);
-
-        if (shiftDate >= period.startDate && shiftDate <= period.endDate) {
-          allPeriodDays.add(shift.date);
-
-          const [sHour, sMin] = shift.start.split(':').map(Number);
-          const [eHour, eMin] = shift.end.split(':').map(Number);
-          const startTotalMin = sHour * 60 + sMin;
-          const endTotalMin = eHour * 60 + eMin;
-
-          if (endTotalMin > startTotalMin) {
-            let grossMinutes = endTotalMin - startTotalMin;
-            if (wp.breakThreshold > 0 && (grossMinutes / 60) >= wp.breakThreshold) {
-              grossMinutes = Math.max(0, grossMinutes - wp.breakMinutes);
-            }
-
-            const shiftSalary = calculateSingleShiftSalary(shift, wp);
-
-            if (shiftDate < today) {
-              confirmedMinutes += grossMinutes;
-              confirmedSalaryVal += shiftSalary;
-
-              if (!confirmedDaysByWp[shift.workplaceId]) confirmedDaysByWp[shift.workplaceId] = new Set();
-              confirmedDaysByWp[shift.workplaceId].add(shift.date);
-            } else {
-              estimatedMinutes += grossMinutes;
-              estimatedSalaryVal += shiftSalary;
-
-              if (!estimatedDaysByWp[shift.workplaceId]) estimatedDaysByWp[shift.workplaceId] = new Set();
-              estimatedDaysByWp[shift.workplaceId].add(shift.date);
-            }
-          }
-        }
-      });
-
-      let confirmedTransportTotal = 0;
-      Object.keys(confirmedDaysByWp).forEach(wpId => {
-        const wp = workplaces.find(w => w.id === wpId);
-        if (wp) confirmedTransportTotal += confirmedDaysByWp[wpId].size * wp.transport;
-      });
-
-      let estimatedTransportTotal = 0;
-      Object.keys(estimatedDaysByWp).forEach(wpId => {
-        const wp = workplaces.find(w => w.id === wpId);
-        if (wp) estimatedTransportTotal += estimatedDaysByWp[wpId].size * wp.transport;
-      });
-
-      const confirmedTotalSalary = confirmedSalaryVal + confirmedTransportTotal;
-      const estimatedTotalSalary = estimatedSalaryVal + estimatedTransportTotal;
-      const grandTotalSalary = confirmedTotalSalary + estimatedTotalSalary;
-
-      const confirmedHours = confirmedMinutes / 60;
-      const estimatedHours = estimatedMinutes / 60;
-      const totalHours = (confirmedMinutes + estimatedMinutes) / 60;
-
-      const confirmedUniqueDays = new Set();
-      Object.values(confirmedDaysByWp).forEach(set => set.forEach(d => confirmedUniqueDays.add(d)));
-
-      const estimatedUniqueDays = new Set();
-      Object.values(estimatedDaysByWp).forEach(set => set.forEach(d => estimatedUniqueDays.add(d)));
-
-      confirmedDaysEl.textContent = confirmedUniqueDays.size;
-      confirmedHoursEl.textContent = confirmedHours.toFixed(1);
-      confirmedSalaryEl.textContent = `￥${confirmedTotalSalary.toLocaleString()}`;
-
-      estimatedDaysEl.textContent = estimatedUniqueDays.size;
-      estimatedHoursEl.textContent = estimatedHours.toFixed(1);
-      estimatedSalaryEl.textContent = `￥${estimatedTotalSalary.toLocaleString()}`;
-
-      totalDaysEl.textContent = allPeriodDays.size;
-      totalHoursEl.textContent = totalHours.toFixed(1);
-      totalSalaryEl.textContent = `￥${grandTotalSalary.toLocaleString()}`;
-
-      // 振込確定額が入力されている場合は、達成率計算のベースとして振込額を優先使用
-      const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-      const actualPaidVal = monthlyActualPaid[monthKey];
-      const comparisonBaseSalary = (actualPaidVal !== undefined) ? actualPaidVal : grandTotalSalary;
-
-      const targetVal = parseInt(targetSalaryInput.value, 10) || 0;
-      if (targetVal > 0) {
-        const percentage = Math.min(100, Math.round((comparisonBaseSalary / targetVal) * 100));
-        progressBarFill.style.width = `${percentage}%`;
-
-        const diff = targetVal - comparisonBaseSalary;
-        if (diff <= 0) {
-          progressText.textContent = `${percentage}% 🎉 目標達成！`;
+        if (shiftDate < today) {
+          confirmedHours += hours;
+          confirmedAmount += pay;
         } else {
-          progressText.textContent = `${percentage}% (あと ￥${diff.toLocaleString()})`;
+          estimatedHours += hours;
+          estimatedAmount += pay;
         }
+      });
+
+      const totalHours = confirmedHours + estimatedHours;
+      const totalAmount = confirmedAmount + estimatedAmount;
+
+      document.getElementById("confirmed-days").textContent = String(Math.round(confirmedHours / 8 || 0));
+      document.getElementById("estimated-days").textContent = String(Math.round(estimatedHours / 8 || 0));
+      document.getElementById("total-days").textContent = String(Math.round(totalHours / 8 || 0));
+
+      document.getElementById("confirmed-hours").textContent = confirmedHours.toFixed(1);
+      document.getElementById("estimated-hours").textContent = estimatedHours.toFixed(1);
+      document.getElementById("total-hours").textContent = totalHours.toFixed(1);
+
+      document.getElementById("confirmed-salary").textContent = `￥${Math.round(confirmedAmount).toLocaleString()}`;
+      document.getElementById("estimated-salary").textContent = `￥${Math.round(estimatedAmount).toLocaleString()}`;
+      document.getElementById("total-salary").textContent = `￥${Math.round(totalAmount).toLocaleString()}`;
+
+      const progress = Math.min(100, Math.round((totalAmount / targetSalary) * 100));
+      const remaining = Math.max(0, targetSalary - totalAmount);
+      document.getElementById("progress-bar-fill").style.width = `${progress}%`;
+      document.getElementById("progress-text").textContent = `${progress}% (あと ￥${remaining.toLocaleString()})`;
+
+      document.getElementById("monthly-actual-paid-input").value = actualPaid ? String(actualPaid) : "";
+      document.getElementById("target-salary-input").value = targetSalary ? String(targetSalary) : "85000";
+    }
+
+    function renderAnnualSummary() {
+      const target = Number(document.getElementById("annual-target-select").value || 1030000);
+      const year = Number(document.getElementById("annual-year-select").value || new Date().getFullYear());
+
+      let total = 0;
+      state.shifts.forEach((shift) => {
+        const date = new Date(`${shift.date}T00:00:00`);
+        if (date.getFullYear() !== year) return;
+
+        const workplace = getWorkplace(shift.workplaceId);
+        const hours = (parseMinutes(shift.end) - parseMinutes(shift.start)) / 60;
+        const rate = workplace?.hourlyRate || 0;
+        total += hours * rate;
+      });
+
+      const progress = Math.min(100, Math.round((total / target) * 100));
+      const remaining = Math.max(0, target - total);
+
+      document.getElementById("annual-year-label").textContent = String(year);
+      document.getElementById("annual-total-val").textContent = `￥${Math.round(total).toLocaleString()}`;
+      document.getElementById("annual-progress-fill").style.width = `${progress}%`;
+      document.getElementById("annual-progress-text").textContent = `${progress}%`;
+      document.getElementById("annual-remain-text").textContent = remaining > 0
+        ? `残り: ￥${Math.round(remaining).toLocaleString()}`
+        : "目標到達済み";
+    }
+
+    function requestNotificationPermission() {
+      const enabled = document.getElementById("notify-enabled-select").value === "true";
+      state.notifyEnabled = enabled;
+      state.notifyTime = document.getElementById("notify-time-input").value;
+
+      if (enabled && "Notification" in window) {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            state.notifyEnabled = true;
+            updateNotificationStatus();
+            saveState();
+          } else {
+            state.notifyEnabled = false;
+            document.getElementById("notify-enabled-select").value = "false";
+            updateNotificationStatus("通知の権限が拒否されたため無効化しました");
+          }
+        });
       } else {
-        progressBarFill.style.width = '0%';
-        progressText.textContent = '目標未設定';
+        saveState();
+        updateNotificationStatus();
       }
     }
 
-    init();
+    function updateNotificationStatus(customMessage) {
+      const enabled = state.notifyEnabled;
+      const time = state.notifyTime || "07:00";
+      const status = document.getElementById("notify-status-text");
+      const enabledSelect = document.getElementById("notify-enabled-select");
+      const timeInput = document.getElementById("notify-time-input");
+
+      if (enabledSelect) enabledSelect.value = String(enabled);
+      if (timeInput) timeInput.value = time;
+
+      if (customMessage) {
+        status.textContent = customMessage;
+        status.style.color = "#ef4444";
+        return;
+      }
+
+      status.textContent = enabled ? `通知ON: ${time}` : "通知OFF";
+      status.style.color = enabled ? "#10b981" : "#94a3b8";
+    }
+
+    function saveAuth() {
+      const password = document.getElementById("auth-password-input").value.trim();
+      const deviceName = document.getElementById("auth-device-name-input").value.trim();
+
+      if (!password) {
+        alert("パスワードを入力してください");
+        return;
+      }
+
+      localStorage.setItem("baito-shifto-auth", JSON.stringify({
+        password,
+        deviceName: deviceName || "未設定",
+        updatedAt: new Date().toISOString()
+      }));
+
+      updateAuthStatus();
+      closeModal("auth-modal");
+      alert("端末連携設定を保存しました");
+    }
+
+    function updateAuthStatus() {
+      const authStatus = document.getElementById("auth-status-text");
+      const data = JSON.parse(localStorage.getItem("baito-shifto-auth") || "null");
+      if (authStatus) {
+        authStatus.textContent = data
+          ? `連携済み: ${data.deviceName || "未設定"}`
+          : "未連携";
+      }
+    }
+
+    function copyList() {
+      const rows = Array.from(document.querySelectorAll("#list-table-body tr")).map((tr) => {
+        return tr.innerText.replace(/\s+/g, " ").trim();
+      }).filter(Boolean);
+
+      const text = rows.join("\n");
+      navigator.clipboard.writeText(text).then(() => {
+        alert("一覧をコピーしました");
+      }).catch(() => {
+        alert("コピーできませんでした");
+      });
+    }
+
+    function renderWorkplaceList() {
+      const list = document.getElementById("workplace-list");
+      if (!list) return;
+      list.innerHTML = "";
+
+      if (!state.workplaces.length) {
+        list.innerHTML = "<p style='color: var(--text-sub);'>バイト先がありません</p>";
+        return;
+      }
+
+      state.workplaces.forEach((wp) => {
+        const item = document.createElement("div");
+        item.className = "workplace-item";
+        item.innerHTML = `
+          <div class="workplace-item-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="width:12px;height:12px;border-radius:50%;display:inline-block;background:${wp.color};"></span>
+              <strong>${escapeHtml(wp.name)}</strong>
+            </div>
+            <button class="btn-danger btn-xs delete-workplace-btn" data-workplace-id="${wp.id}">削除</button>
+          </div>
+          <div class="workplace-item-fields">
+            <span>時給: ${Number(wp.hourlyRate).toLocaleString()}円</span>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      list.querySelectorAll(".delete-workplace-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.workplaceId;
+          state.workplaces = state.workplaces.filter((wp) => wp.id !== id);
+          state.shifts = state.shifts.filter((shift) => shift.workplaceId !== id);
+          saveState();
+          renderAll();
+        });
+      });
+    }
+
+    function getWorkplace(id) {
+      return state.workplaces.find((wp) => wp.id === id);
+    }
+
+    function parseMinutes(value) {
+      const [h, m] = String(value).split(":").map(Number);
+      return (h || 0) * 60 + (m || 0);
+    }
+
+    function formatDateKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function isSameDate(a, b) {
+      return a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+    }
+
+    function getTodayString(offsetDays = 0) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      return formatDateKey(d);
+    }
+
+    function randomColor() {
+      const colors = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#ef4444"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function shadeColor(color, percent) {
+      const num = parseInt(color.slice(1), 16);
+      const amt = Math.round(2.55 * percent);
+      const r = (num >> 16) + amt;
+      const g = ((num >> 8) & 0x00ff) + amt;
+      const b = (num & 0x0000ff) + amt;
+      return "#" + (
+        0x1000000 +
+        (r < 255 ? (r < 1 ? 0 : r) : 255) * 0x10000 +
+        (g < 255 ? (g < 1 ? 0 : g) : 255) * 0x100 +
+        (b < 255 ? (b < 1 ? 0 : b) : 255)
+      ).toString(16).slice(1);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
   </script>
 </body>
 </html>
