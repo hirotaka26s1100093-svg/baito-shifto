@@ -1300,41 +1300,38 @@ if (userConfig && userConfig.apiKey && userConfig.apiKey !== "YOUR_API_KEY") {
       return { internalEmail, internalPass };
     }
 
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        openAuthModalBtn.textContent = '🟢 同期中';
-        loggedPassInfo.textContent = '🟢 端末間でリアルタイム同期中';
-        authUnloggedView.style.display = 'none';
-        authLoggedView.style.display = 'block';
+    if (auth) {
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      openAuthModalBtn.textContent = '🟢 同期中';
+      loggedPassInfo.textContent = '🟢 端末間でリアルタイム同期中';
+      authUnloggedView.style.display = 'none';
+      authLoggedView.style.display = 'block';
 
-        const userDocRef = doc(db, 'users', user.uid);
-        unsubscribeFirestore = onSnapshot(userDocRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            if (data.shifts) shifts = data.shifts;
-            if (data.workplaces) workplaces = data.workplaces;
-            if (data.targetSalary !== undefined) targetSalaryInput.value = data.targetSalary;
-            if (data.monthlyActualPaid) monthlyActualPaid = data.monthlyActualPaid;
-            
-            localStorage.setItem('shift_app_shifts', JSON.stringify(shifts));
-            localStorage.setItem('shift_app_workplaces', JSON.stringify(workplaces));
-            localStorage.setItem('shift_app_target_salary', targetSalaryInput.value);
-            localStorage.setItem('shift_app_monthly_actual_paid', JSON.stringify(monthlyActualPaid));
+      const userDocRef = doc(db, 'users', user.uid);
+      unsubscribeFirestore = onSnapshot(userDocRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data.shifts) shifts = data.shifts;
+          if (data.workplaces) workplaces = data.workplaces;
+          if (data.targetSalary !== undefined) targetSalaryInput.value = data.targetSalary;
+          if (data.monthlyActualPaid) monthlyActualPaid = data.monthlyActualPaid;
 
-            renderWorkplaceOptions();
-            updateCalendar(false);
-          } else {
-            saveAllDataToCloud();
-          }
-        });
-      } else {
-        openAuthModalBtn.textContent = '☁️ 端末連携';
-        authUnloggedView.style.display = 'block';
-        authLoggedView.style.display = 'none';
-        if (unsubscribeFirestore) unsubscribeFirestore();
-      }
-    });
+          renderWorkplaceOptions();
+          updateCalendar(false);
+        } else {
+          saveAllDataToCloud();
+        }
+      });
+    } else {
+      openAuthModalBtn.textContent = '☁️ 端末連携';
+      authUnloggedView.style.display = 'block';
+      authLoggedView.style.display = 'none';
+      if (unsubscribeFirestore) unsubscribeFirestore();
+    }
+  });
+}
 
     function saveAllDataToCloud() {
       if (!currentUser) return;
